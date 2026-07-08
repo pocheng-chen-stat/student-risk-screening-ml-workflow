@@ -6,6 +6,20 @@ The central analytical question is:
 
 > Given student-level demographic, academic, lifestyle, and pressure-related variables, can we build a reproducible binary classification workflow and identify which variables repeatedly act as predictive warning signs in this dataset?
 
+## Project Summary
+
+This repository presents an end-to-end **tabular machine learning and data analysis workflow** using a synthetic student depression dataset as a case study. The project demonstrates how I:
+
+- define a clear analysis population and remove ambiguous records,
+- design EDA around specific analytical questions rather than decorative plots,
+- build a reproducible train/test and training-set cross-validation pipeline,
+- compare Logistic Regression, Lasso Logistic, Ridge Logistic, KNN, Linear SVM, Random Forest, and XGBoost with multiple metrics,
+- integrate model performance into readable overview figures,
+- interpret repeated predictive signals through cross-model feature importance and logistic odds ratios,
+- communicate results responsibly without making clinical or causal claims.
+
+In short, the project is meant to show a structured data analysis process: **from data definition and validation to modeling, interpretation, and responsible communication**.
+
 ## Responsible Use and Project Scope
 
 This dataset is treated as a **synthetic case-study dataset** for machine learning practice. The output of this project should be interpreted as dataset-level predictive patterns, not medical evidence.
@@ -302,6 +316,7 @@ reports/figures/
 ```text
 student-risk-screening-ml-workflow/
 ├── README.md
+├── LICENSE
 ├── requirements.txt
 ├── main.py
 ├── data/
@@ -321,6 +336,12 @@ student-risk-screening-ml-workflow/
 └── tests/
     └── test_pipeline.py
 ```
+
+## License
+
+This project is released under the MIT License. See [`LICENSE`](LICENSE) for details.
+
+The license applies to the code and project materials in this repository. The dataset is sourced from Kaggle and may be subject to its own terms of use; please check the original dataset page before redistributing or reusing the raw data.
 
 ## Skills Demonstrated
 
