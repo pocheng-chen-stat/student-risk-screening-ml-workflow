@@ -1,19 +1,19 @@
 feature,coefficient,abs_coefficient
-categorical__have_you_ever_had_suicidal_thoughts_Yes,1.24847791718692,1.24847791718692
-categorical__have_you_ever_had_suicidal_thoughts_No,-1.200410407136261,1.200410407136261
-numeric__academic_pressure,1.1373158108634158,1.1373158108634158
-numeric__financial_stress,0.7814024111388945,0.7814024111388945
-categorical__dietary_habits_Unhealthy,0.5586054449522525,0.5586054449522525
-numeric__age,-0.5294744855441992,0.5294744855441992
-categorical__dietary_habits_Healthy,-0.45829126814468457,0.45829126814468457
-numeric__work_study_hours,0.429364109125897,0.429364109125897
-categorical__sleep_duration_'Less than 5 hours',0.33890241670410776,0.33890241670410776
-numeric__study_satisfaction,-0.32626459213789283,0.32626459213789283
-categorical__family_history_of_mental_illness_Yes,0.23154754367339486,0.23154754367339486
-categorical__sleep_duration_'More than 8 hours',-0.2246327333897833,0.2246327333897833
-numeric__cgpa,0.08289735695284933,0.08289735695284933
-categorical__degree_'Class 12',-0.027680334715578576,0.027680334715578576
-numeric__job_satisfaction,-0.0011765143138344266,0.0011765143138344266
+categorical__have_you_ever_had_suicidal_thoughts_Yes,1.2485145924351337,1.2485145924351337
+categorical__have_you_ever_had_suicidal_thoughts_No,-1.2004765296853968,1.2004765296853968
+numeric__academic_pressure,1.1372937161699395,1.1372937161699395
+numeric__financial_stress,0.7813823973209487,0.7813823973209487
+categorical__dietary_habits_Unhealthy,0.5586913127055386,0.5586913127055386
+numeric__age,-0.5294245469522186,0.5294245469522186
+categorical__dietary_habits_Healthy,-0.4583939602502628,0.4583939602502628
+numeric__work_study_hours,0.4293458219800488,0.4293458219800488
+categorical__sleep_duration_'Less than 5 hours',0.3391508611717084,0.3391508611717084
+numeric__study_satisfaction,-0.32623875246304346,0.32623875246304346
+categorical__family_history_of_mental_illness_Yes,0.23137013684186356,0.23137013684186356
+categorical__sleep_duration_'More than 8 hours',-0.2244416629707809,0.2244416629707809
+numeric__cgpa,0.08289630834811391,0.08289630834811391
+categorical__degree_'Class 12',-0.027569319402370288,0.027569319402370288
+numeric__job_satisfaction,-0.001176342386451708,0.001176342386451708
 numeric__work_pressure,0.0,0.0
 categorical__dietary_habits_Moderate,0.0,0.0
 categorical__gender_Male,0.0,0.0

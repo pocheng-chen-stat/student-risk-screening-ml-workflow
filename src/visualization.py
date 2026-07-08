@@ -198,6 +198,76 @@ def plot_model_metric_comparison(test_comparison: pd.DataFrame, output_path: str
     plt.close(fig)
 
 
+def plot_model_comparison_overview(
+    *,
+    model_results: dict,
+    test_comparison: pd.DataFrame,
+    output_path: str | Path,
+) -> None:
+    """Create a README-ready three-panel overview of model performance.
+
+    The figure combines:
+    1. ROC curves for ranking performance.
+    2. Precision-recall curves for positive-class screening performance.
+    3. A compact bar chart of ROC-AUC, F1, and sensitivity.
+
+    Individual detailed figures are still generated separately, but this
+    overview figure is the one intended for the README so the model comparison
+    section reads as one coherent result instead of three disconnected plots.
+    """
+    metrics = ["roc_auc", "f1", "sensitivity_recall"]
+    metric_labels = ["ROC-AUC", "F1", "Sensitivity"]
+    plot_df = test_comparison.set_index("model")[metrics].copy()
+    plot_df.index = [_format_axis_label(model) for model in plot_df.index]
+
+    fig, axes = plt.subplots(1, 3, figsize=(19, 5.8))
+
+    # Panel A: ROC curve comparison.
+    ax = axes[0]
+    for name, result in model_results.items():
+        RocCurveDisplay.from_predictions(
+            result["y_test"],
+            result["y_score"],
+            name=_format_axis_label(name),
+            ax=ax,
+        )
+    ax.set_title("A. ROC Curve")
+    ax.legend(fontsize=8, loc="lower right")
+
+    # Panel B: precision-recall curve comparison.
+    ax = axes[1]
+    for name, result in model_results.items():
+        PrecisionRecallDisplay.from_predictions(
+            result["y_test"],
+            result["y_score"],
+            name=_format_axis_label(name),
+            ax=ax,
+        )
+    ax.set_title("B. Precision-Recall Curve")
+    ax.legend(fontsize=8, loc="lower left")
+
+    # Panel C: compact metric summary.
+    ax = axes[2]
+    x = range(len(plot_df.index))
+    width = 0.24
+    offsets = [-width, 0, width]
+    for offset, metric, label in zip(offsets, metrics, metric_labels):
+        values = plot_df[metric].values
+        positions = [i + offset for i in x]
+        ax.bar(positions, values, width=width, label=label)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(plot_df.index, rotation=35, ha="right")
+    ax.set_ylim(0, 1)
+    ax.set_ylabel("Score")
+    ax.set_title("C. Held-Out Metric Summary")
+    ax.legend(fontsize=8)
+
+    fig.suptitle("Model Comparison Overview", fontsize=15, y=1.03)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=220, bbox_inches="tight")
+    plt.close(fig)
+
+
 def plot_feature_bar(
     table: pd.DataFrame,
     feature_col: str,

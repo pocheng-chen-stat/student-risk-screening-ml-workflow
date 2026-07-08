@@ -22,6 +22,7 @@ from src.visualization import (
     plot_feature_bar,
     plot_missing_values,
     plot_model_metric_comparison,
+    plot_model_comparison_overview,
     plot_numeric_correlation,
     plot_precision_recall_curves,
     plot_roc_curves,
@@ -78,6 +79,11 @@ def main() -> None:
     plot_model_metric_comparison(test_comparison, FIGURES_DIR / "model_metric_comparison.png")
     plot_roc_curves(model_results, FIGURES_DIR / "roc_curve_comparison.png")
     plot_precision_recall_curves(model_results, FIGURES_DIR / "precision_recall_curve_comparison.png")
+    plot_model_comparison_overview(
+        model_results=model_results,
+        test_comparison=test_comparison,
+        output_path=FIGURES_DIR / "model_comparison_overview.png",
+    )
 
     best_auc_model = test_comparison.iloc[0]["model"]
     highest_sensitivity_model = test_comparison.sort_values("sensitivity_recall", ascending=False).iloc[0]["model"]

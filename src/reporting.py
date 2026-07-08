@@ -39,7 +39,6 @@ METRIC_RENAMES = {
     "f1": "F1",
     "best_cv_roc_auc": "Best CV ROC-AUC",
     "cv_std_roc_auc": "CV Std.",
-    "best_params": "Selected Parameters",
 }
 
 
@@ -58,7 +57,14 @@ def _format_metric_table(table: pd.DataFrame) -> pd.DataFrame:
 
 
 def _format_cv_table(cv_comparison: pd.DataFrame) -> pd.DataFrame:
-    cv_columns = ["model", "best_cv_roc_auc", "cv_std_roc_auc", "best_params"]
+    """Format cross-validation results for README display.
+
+    Hyperparameter dictionaries are intentionally omitted from the README table
+    because they are verbose and make GitHub Markdown hard to read. The full
+    table, including selected hyperparameters, remains available in
+    reports/cv_model_comparison.csv.
+    """
+    cv_columns = ["model", "best_cv_roc_auc", "cv_std_roc_auc"]
     available = [column for column in cv_columns if column in cv_comparison.columns]
     formatted = cv_comparison.loc[:, available].copy()
     if "model" in formatted.columns:
@@ -66,8 +72,6 @@ def _format_cv_table(cv_comparison: pd.DataFrame) -> pd.DataFrame:
     for column in ["best_cv_roc_auc", "cv_std_roc_auc"]:
         if column in formatted.columns:
             formatted[column] = formatted[column].map(lambda value: f"{value:.3f}")
-    if "best_params" in formatted.columns:
-        formatted["best_params"] = formatted["best_params"].map(lambda value: str(value).replace("model__", ""))
     return formatted.rename(columns=METRIC_RENAMES)
 
 
@@ -168,13 +172,27 @@ def save_readme_results(
     lines.append("")
     lines.append("### Held-Out Test Performance")
     lines.append("")
-    lines.append(_format_metric_table(test_comparison).to_markdown(index=False))
+    lines.append(_format_metric_table(test_comparison).to_markdown(index=False, disable_numparse=True))
     lines.append("")
-    lines.append("![Held-out metric comparison](reports/figures/model_metric_comparison.png)")
+    lines.append("![Model comparison overview](reports/figures/model_comparison_overview.png)")
     lines.append("")
-    lines.append("![ROC curve comparison](reports/figures/roc_curve_comparison.png)")
+    lines.append("The overview figure combines ROC curves, precision-recall curves, and selected summary metrics. The individual ROC, precision-recall, and metric-summary figures are also saved under `reports/figures/` for detailed inspection.")
     lines.append("")
-    lines.append("![Precision-Recall curve comparison](reports/figures/precision_recall_curve_comparison.png)")
+    lines.append("### How the Evaluation Metrics Are Read")
+    lines.append("")
+    lines.append("| Metric | Meaning in this project |")
+    lines.append("|---|---|")
+    lines.append("| Accuracy | Overall proportion of correct predictions. Useful as a general summary, but not enough by itself. |")
+    lines.append("| ROC-AUC | Ability to rank risk-label cases above non-risk-label cases across thresholds. This is the main threshold-independent comparison metric. |")
+    lines.append("| PR-AUC | Precision-recall performance, useful when the positive class is especially important. |")
+    lines.append("| Sensitivity / Recall | Among students with the risk label, the proportion correctly detected. Important in a screening-style setting because missed high-risk cases are concerning. |")
+    lines.append("| Specificity | Among students without the risk label, the proportion correctly identified as non-risk. |")
+    lines.append("| Precision | Among students predicted as risk-label cases, the proportion that truly have the risk label. |")
+    lines.append("| F1 Score | Harmonic mean of precision and recall. Useful when balancing false positives and false negatives. |")
+    lines.append("")
+    lines.append("### Overall Model Assessment")
+    lines.append("")
+    lines.append("The held-out results show that XGBoost has the strongest ROC-AUC, while KNN gives the highest sensitivity. However, logistic-based models remain very competitive. This means the project should not only choose the highest-scoring model; it should also use interpretable models to explain which variables are associated with the risk label.")
     lines.append("")
     lines.append("### Training-Set Cross-Validation")
     lines.append("")
@@ -182,7 +200,9 @@ def save_readme_results(
         "Cross-validation is performed only on the training set. The held-out test set is used once at the end to estimate final performance."
     )
     lines.append("")
-    lines.append(_format_cv_table(cv_comparison).to_markdown(index=False))
+    lines.append(_format_cv_table(cv_comparison).to_markdown(index=False, disable_numparse=True))
+    lines.append("")
+    lines.append("Selected hyperparameters are saved in `reports/cv_model_comparison.csv`. They are omitted from the README table to keep the model-comparison section readable.")
     lines.append("")
     lines.append("## Results: Feature Interpretation")
     lines.append("")
@@ -203,7 +223,7 @@ def save_readme_results(
             "This is still predictive agreement, not causal evidence."
         )
         lines.append("")
-        lines.append(consensus.to_markdown(index=False))
+        lines.append(consensus.to_markdown(index=False, disable_numparse=True))
         lines.append("")
 
     odds = interpretation_outputs.get("logistic_odds_ratios_raw_scale", pd.DataFrame())
@@ -216,7 +236,7 @@ def save_readme_results(
             "For categorical variables, `exp(beta)` compares the displayed level with the reference level created during one-hot encoding."
         )
         lines.append("")
-        lines.append(_top_odds_ratios(odds).to_markdown(index=False))
+        lines.append(_top_odds_ratios(odds).to_markdown(index=False, disable_numparse=True))
         lines.append("")
 
     lasso = interpretation_outputs.get("lasso_feature_importance", pd.DataFrame())
@@ -227,7 +247,7 @@ def save_readme_results(
             "Lasso is sorted by absolute coefficient size to show variable strength, while the direction column keeps whether the selected signal is associated with higher or lower predicted risk."
         )
         lines.append("")
-        lines.append(_top_lasso_features(lasso).to_markdown(index=False))
+        lines.append(_top_lasso_features(lasso).to_markdown(index=False, disable_numparse=True))
         lines.append("")
 
     output_path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")

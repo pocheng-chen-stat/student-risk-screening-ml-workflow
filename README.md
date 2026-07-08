@@ -134,11 +134,11 @@ However, the main finding is not simply “XGBoost wins.” The performance gap 
 | Random Forest       |      0.839 |     0.917 |    0.933 |         0.853 |         0.818 |       0.869 | 0.861 |
 | KNN                 |      0.842 |     0.911 |    0.922 |         0.907 |         0.749 |       0.836 | 0.870 |
 
-![Held-out metric comparison](reports/figures/model_metric_comparison.png)
+The models are evaluated from two perspectives: threshold-independent ranking performance and threshold-based screening trade-offs. The overview figure below combines ROC curves, precision-recall curves, and selected summary metrics.
 
-![ROC curve comparison](reports/figures/roc_curve_comparison.png)
+![Model comparison overview](reports/figures/model_comparison_overview.png)
 
-![Precision-Recall curve comparison](reports/figures/precision_recall_curve_comparison.png)
+The individual ROC, precision-recall, and metric-summary plots are also saved separately under `reports/figures/` for detailed inspection.
 
 ### How the Evaluation Metrics Are Read
 
