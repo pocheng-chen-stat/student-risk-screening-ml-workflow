@@ -83,12 +83,22 @@ def _top_lasso_features(table: pd.DataFrame, top_n: int = 8) -> pd.DataFrame:
     )
 
 
-def _top_importance_features(table: pd.DataFrame, value_col: str, top_n: int = 8) -> pd.DataFrame:
-    if table.empty or value_col not in table.columns:
+def _top_odds_ratios(table: pd.DataFrame, top_n: int = 8) -> pd.DataFrame:
+    if table.empty:
         return pd.DataFrame()
-    data = table.sort_values(value_col, ascending=False).head(top_n).copy()
-    data["Importance"] = data[value_col].map(lambda value: f"{value:.3f}")
-    return data[["feature_label", "Importance"]].rename(columns={"feature_label": "Feature"})
+    data = table.sort_values("abs_coefficient", ascending=False).head(top_n).copy()
+    data["Coefficient"] = data["coefficient"].map(lambda value: f"{value:.3f}")
+    data["Odds Ratio exp(beta)"] = data["odds_ratio"].map(lambda value: f"{value:.2f}x")
+    data["Approx. odds change"] = data["odds_change_percent"].map(lambda value: f"{value:+.0f}%")
+    return data[
+        ["feature_label", "comparison", "direction", "Coefficient", "Odds Ratio exp(beta)", "Approx. odds change"]
+    ].rename(
+        columns={
+            "feature_label": "Feature",
+            "comparison": "Comparison",
+            "direction": "Direction",
+        }
+    )
 
 
 def _feature_consensus(interpretation_outputs: dict[str, pd.DataFrame], top_n: int = 10) -> pd.DataFrame:
@@ -142,13 +152,18 @@ def save_readme_results(
     best_sensitivity = test_comparison.sort_values("sensitivity_recall", ascending=False).iloc[0]
 
     lines: list[str] = []
-    lines.append("## Results")
+    lines.append("## Results: Model Comparison")
     lines.append("")
     lines.append(
-        f"The strongest held-out ROC-AUC is from **{model_label(best_auc['model'])}** "
+        f"The best held-out ROC-AUC is from **{model_label(best_auc['model'])}** "
         f"(ROC-AUC = {best_auc['roc_auc']:.3f}). "
         f"The highest sensitivity is from **{model_label(best_sensitivity['model'])}** "
         f"(sensitivity = {best_sensitivity['sensitivity_recall']:.3f})."
+    )
+    lines.append("")
+    lines.append(
+        "The performance gap among XGBoost, logistic regression, ridge logistic, lasso logistic, and linear SVM is small. "
+        "Therefore, the project does not stop at selecting the highest-scoring model; it also uses interpretable models to explain which variables repeatedly carry predictive signal."
     )
     lines.append("")
     lines.append("### Held-Out Test Performance")
@@ -163,69 +178,56 @@ def save_readme_results(
     lines.append("")
     lines.append("### Training-Set Cross-Validation")
     lines.append("")
+    lines.append(
+        "Cross-validation is performed only on the training set. The held-out test set is used once at the end to estimate final performance."
+    )
+    lines.append("")
     lines.append(_format_cv_table(cv_comparison).to_markdown(index=False))
     lines.append("")
-    lines.append("## Cross-Model Feature Interpretation")
+    lines.append("## Results: Feature Interpretation")
     lines.append("")
     lines.append(
-        "The goal of this section is not to claim psychological causality. "
-        "Instead, the analysis asks whether similar predictive signals appear across "
-        "linear and tree-based models."
+        "After confirming that several models perform similarly well, the next question is: which explanatory variables are consistently selected? "
+        "The figure below compares Lasso, Random Forest, and XGBoost. Lasso is sorted by absolute coefficient size, and the sign annotation keeps the positive/negative direction."
     )
     lines.append("")
     lines.append("![Cross-model feature importance](reports/figures/cross_model_feature_importance.png)")
     lines.append("")
-
-    lasso = interpretation_outputs.get("lasso_feature_importance", pd.DataFrame())
-    if not lasso.empty:
-        lines.append("### Lasso Direction Summary")
-        lines.append("")
-        lines.append(
-            "Lasso is useful because it gives both variable magnitude and the direction of the selected signal. "
-            "The ranking below uses the absolute coefficient size, while the direction column keeps the sign information."
-        )
-        lines.append("")
-        lines.append(_top_lasso_features(lasso).to_markdown(index=False))
-        lines.append("")
-
-    logistic = interpretation_outputs.get("logistic_risk_direction", pd.DataFrame())
-    if not logistic.empty:
-        pos = logistic[logistic["direction"].eq("Positive")].head(5)
-        neg = logistic[logistic["direction"].eq("Negative")].head(5)
-        lines.append("### Logistic Regression Interpretation")
-        lines.append("")
-        lines.append(
-            "Traditional logistic regression remains valuable here because its coefficients give a direct, readable risk-direction summary. "
-            "In this dataset, variables such as academic pressure and financial stress tend to carry positive coefficients, while some lifestyle or demographic levels carry negative coefficients. "
-            "These are predictive associations in a synthetic dataset, not causal explanations."
-        )
-        lines.append("")
-        if not pos.empty:
-            lines.append("Top positive logistic signals:")
-            lines.append("")
-            pos_table = pos[["feature_label", "level_label", "coefficient"]].copy()
-            pos_table["level_label"] = pos_table["level_label"].fillna("numeric increase")
-            pos_table["coefficient"] = pos_table["coefficient"].map(lambda value: f"{value:.3f}")
-            lines.append(pos_table.rename(columns={"feature_label": "Feature", "level_label": "Level", "coefficient": "Coefficient"}).to_markdown(index=False))
-            lines.append("")
-        if not neg.empty:
-            lines.append("Top negative logistic signals:")
-            lines.append("")
-            neg_table = neg[["feature_label", "level_label", "coefficient"]].copy()
-            neg_table["level_label"] = neg_table["level_label"].fillna("numeric increase")
-            neg_table["coefficient"] = neg_table["coefficient"].map(lambda value: f"{value:.3f}")
-            lines.append(neg_table.rename(columns={"feature_label": "Feature", "level_label": "Level", "coefficient": "Coefficient"}).to_markdown(index=False))
-            lines.append("")
 
     consensus = _feature_consensus(interpretation_outputs)
     if not consensus.empty:
         lines.append("### Cross-Model Consensus")
         lines.append("")
         lines.append(
-            "A feature is more convincing as a dataset-level predictive signal when it appears repeatedly across model families."
+            "Variables that repeatedly appear across model families are treated as stronger dataset-level predictive signals. "
+            "This is still predictive agreement, not causal evidence."
         )
         lines.append("")
         lines.append(consensus.to_markdown(index=False))
+        lines.append("")
+
+    odds = interpretation_outputs.get("logistic_odds_ratios_raw_scale", pd.DataFrame())
+    if not odds.empty:
+        lines.append("### Logistic Regression Odds-Ratio View")
+        lines.append("")
+        lines.append(
+            "To make the logistic regression interpretation readable, an auxiliary logistic model is fit with numeric variables kept on their original scale. "
+            "For numeric variables, `exp(beta)` is interpreted as the multiplicative change in the odds of the risk label for a one-unit increase, holding other variables fixed. "
+            "For categorical variables, `exp(beta)` compares the displayed level with the reference level created during one-hot encoding."
+        )
+        lines.append("")
+        lines.append(_top_odds_ratios(odds).to_markdown(index=False))
+        lines.append("")
+
+    lasso = interpretation_outputs.get("lasso_feature_importance", pd.DataFrame())
+    if not lasso.empty:
+        lines.append("### Lasso Direction Summary")
+        lines.append("")
+        lines.append(
+            "Lasso is sorted by absolute coefficient size to show variable strength, while the direction column keeps whether the selected signal is associated with higher or lower predicted risk."
+        )
+        lines.append("")
+        lines.append(_top_lasso_features(lasso).to_markdown(index=False))
         lines.append("")
 
     output_path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")

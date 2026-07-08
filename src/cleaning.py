@@ -19,6 +19,9 @@ class CleaningReport:
     removed_non_student_rows: int
     removed_cgpa_zero_rows: int
     removed_degree_other_rows: int
+    removed_dietary_habits_other_rows: int
+    removed_sleep_duration_other_rows: int
+    removed_academic_pressure_zero_rows: int
     removed_financial_stress_invalid_rows: int
     final_rows: int
     final_positive_rate: float
@@ -48,10 +51,21 @@ def _count_cgpa_zero_rows(df: pd.DataFrame) -> int:
     return int(cgpa.eq(0).sum())
 
 
-def _count_degree_other_rows(df: pd.DataFrame) -> int:
-    if "degree" not in df.columns:
+def _count_other_rows(df: pd.DataFrame, column: str) -> int:
+    if column not in df.columns:
         return 0
-    return int(df["degree"].astype(str).str.strip().str.lower().isin({"other", "others"}).sum())
+    return int(df[column].astype(str).str.strip().str.strip("\'").str.strip('"').str.lower().isin({"other", "others"}).sum())
+
+
+def _count_degree_other_rows(df: pd.DataFrame) -> int:
+    return _count_other_rows(df, "degree")
+
+
+def _count_academic_pressure_zero_rows(df: pd.DataFrame) -> int:
+    if "academic_pressure" not in df.columns:
+        return 0
+    academic_pressure = pd.to_numeric(df["academic_pressure"], errors="coerce")
+    return int(academic_pressure.eq(0).sum())
 
 
 def _count_invalid_financial_stress_rows(df: pd.DataFrame) -> int:
@@ -95,8 +109,23 @@ def clean_dataset(df: pd.DataFrame) -> tuple[pd.DataFrame, CleaningReport]:
 
     removed_degree_other_rows = _count_degree_other_rows(cleaned)
     if "degree" in cleaned.columns:
-        is_other_degree = cleaned["degree"].astype(str).str.strip().str.lower().isin({"other", "others"})
+        is_other_degree = cleaned["degree"].astype(str).str.strip().str.strip("'").str.strip('"').str.lower().isin({"other", "others"})
         cleaned = cleaned.loc[~is_other_degree].copy()
+
+    removed_dietary_habits_other_rows = _count_other_rows(cleaned, "dietary_habits")
+    if "dietary_habits" in cleaned.columns:
+        is_other_diet = cleaned["dietary_habits"].astype(str).str.strip().str.strip("'").str.strip('"').str.lower().isin({"other", "others"})
+        cleaned = cleaned.loc[~is_other_diet].copy()
+
+    removed_sleep_duration_other_rows = _count_other_rows(cleaned, "sleep_duration")
+    if "sleep_duration" in cleaned.columns:
+        is_other_sleep = cleaned["sleep_duration"].astype(str).str.strip().str.strip("'").str.strip('"').str.lower().isin({"other", "others"})
+        cleaned = cleaned.loc[~is_other_sleep].copy()
+
+    removed_academic_pressure_zero_rows = _count_academic_pressure_zero_rows(cleaned)
+    if "academic_pressure" in cleaned.columns:
+        cleaned["academic_pressure"] = pd.to_numeric(cleaned["academic_pressure"], errors="coerce")
+        cleaned = cleaned.loc[cleaned["academic_pressure"].ne(0)].copy()
 
     removed_financial_stress_invalid_rows = _count_invalid_financial_stress_rows(cleaned)
     if "financial_stress" in cleaned.columns:
@@ -121,6 +150,9 @@ def clean_dataset(df: pd.DataFrame) -> tuple[pd.DataFrame, CleaningReport]:
         removed_non_student_rows=removed_non_student_rows,
         removed_cgpa_zero_rows=removed_cgpa_zero_rows,
         removed_degree_other_rows=removed_degree_other_rows,
+        removed_dietary_habits_other_rows=removed_dietary_habits_other_rows,
+        removed_sleep_duration_other_rows=removed_sleep_duration_other_rows,
+        removed_academic_pressure_zero_rows=removed_academic_pressure_zero_rows,
         removed_financial_stress_invalid_rows=removed_financial_stress_invalid_rows,
         final_rows=len(cleaned),
         final_positive_rate=float(cleaned[TARGET_COLUMN].mean()) if len(cleaned) else 0.0,

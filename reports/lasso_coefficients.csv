@@ -1,51 +1,49 @@
 feature,coefficient,abs_coefficient
-categorical__have_you_ever_had_suicidal_thoughts_No,-1.228443025303006,1.228443025303006
-categorical__have_you_ever_had_suicidal_thoughts_Yes,1.2232847887273788,1.2232847887273788
-numeric__academic_pressure,1.1509528926715407,1.1509528926715407
-numeric__financial_stress,0.7900380322105202,0.7900380322105202
-categorical__dietary_habits_Unhealthy,0.5810595162596051,0.5810595162596051
-numeric__age,-0.5352697580444026,0.5352697580444026
-categorical__dietary_habits_Healthy,-0.5009749855260585,0.5009749855260585
-numeric__work_study_hours,0.426181520482642,0.426181520482642
-categorical__sleep_duration_'Less than 5 hours',0.37651050075588205,0.37651050075588205
-numeric__study_satisfaction,-0.32733827404768967,0.32733827404768967
-categorical__family_history_of_mental_illness_Yes,0.22658005113498017,0.22658005113498017
-categorical__sleep_duration_'More than 8 hours',-0.20405109320907452,0.20405109320907452
-categorical__degree_BSc,0.13028156389541284,0.13028156389541284
-categorical__degree_LLM,0.11946124388046901,0.11946124388046901
-numeric__cgpa,0.07874919617280966,0.07874919617280966
-categorical__degree_B.Arch,0.052643628860325684,0.052643628860325684
-categorical__degree_MBBS,0.043187290597362996,0.043187290597362996
-categorical__degree_BA,-0.04164552796075211,0.04164552796075211
-categorical__degree_'Class 12',-0.030509056679627503,0.030509056679627503
-categorical__sleep_duration_'5-6 hours',0.02110082520801923,0.02110082520801923
-categorical__degree_B.Tech,0.01700470918621648,0.01700470918621648
-categorical__degree_MSc,-0.016234838546327065,0.016234838546327065
-categorical__degree_B.Com,-0.015758823777268158,0.015758823777268158
-numeric__job_satisfaction,-0.014693912596012122,0.014693912596012122
-categorical__gender_Female,0.007188296986162382,0.007188296986162382
-categorical__gender_Male,0.0,0.0
-categorical__dietary_habits_Others,0.0,0.0
-categorical__dietary_habits_Moderate,0.0,0.0
-categorical__sleep_duration_Others,0.0,0.0
-categorical__sleep_duration_'7-8 hours',0.0,0.0
+categorical__have_you_ever_had_suicidal_thoughts_Yes,1.24847791718692,1.24847791718692
+categorical__have_you_ever_had_suicidal_thoughts_No,-1.200410407136261,1.200410407136261
+numeric__academic_pressure,1.1373158108634158,1.1373158108634158
+numeric__financial_stress,0.7814024111388945,0.7814024111388945
+categorical__dietary_habits_Unhealthy,0.5586054449522525,0.5586054449522525
+numeric__age,-0.5294744855441992,0.5294744855441992
+categorical__dietary_habits_Healthy,-0.45829126814468457,0.45829126814468457
+numeric__work_study_hours,0.429364109125897,0.429364109125897
+categorical__sleep_duration_'Less than 5 hours',0.33890241670410776,0.33890241670410776
+numeric__study_satisfaction,-0.32626459213789283,0.32626459213789283
+categorical__family_history_of_mental_illness_Yes,0.23154754367339486,0.23154754367339486
+categorical__sleep_duration_'More than 8 hours',-0.2246327333897833,0.2246327333897833
+numeric__cgpa,0.08289735695284933,0.08289735695284933
+categorical__degree_'Class 12',-0.027680334715578576,0.027680334715578576
+numeric__job_satisfaction,-0.0011765143138344266,0.0011765143138344266
 numeric__work_pressure,0.0,0.0
+categorical__dietary_habits_Moderate,0.0,0.0
+categorical__gender_Male,0.0,0.0
+categorical__sleep_duration_'5-6 hours',0.0,0.0
+categorical__sleep_duration_'7-8 hours',0.0,0.0
+categorical__gender_Female,0.0,0.0
 categorical__degree_B.Ed,0.0,0.0
+categorical__degree_B.Arch,0.0,0.0
+categorical__degree_B.Com,0.0,0.0
 categorical__degree_BBA,0.0,0.0
-categorical__degree_B.Pharm,0.0,0.0
-categorical__degree_M.Com,0.0,0.0
-categorical__degree_LLB,0.0,0.0
+categorical__degree_BCA,0.0,0.0
 categorical__degree_BE,0.0,0.0
 categorical__degree_BHM,0.0,0.0
-categorical__degree_BCA,0.0,0.0
+categorical__degree_BSc,0.0,0.0
+categorical__degree_B.Pharm,0.0,0.0
+categorical__degree_B.Tech,0.0,0.0
+categorical__degree_BA,0.0,0.0
+categorical__degree_M.Com,0.0,0.0
+categorical__degree_LLM,0.0,0.0
+categorical__degree_LLB,0.0,0.0
 categorical__degree_M.Ed,0.0,0.0
-categorical__degree_M.Tech,0.0,0.0
+categorical__degree_MBA,0.0,0.0
 categorical__degree_M.Pharm,0.0,0.0
+categorical__degree_M.Tech,0.0,0.0
+categorical__degree_MA,0.0,0.0
 categorical__degree_MD,0.0,0.0
 categorical__degree_MCA,0.0,0.0
-categorical__degree_MBA,0.0,0.0
-categorical__degree_MA,0.0,0.0
-categorical__degree_PhD,0.0,0.0
-categorical__degree_MHM,0.0,0.0
+categorical__degree_MBBS,0.0,0.0
 categorical__degree_ME,0.0,0.0
+categorical__degree_PhD,0.0,0.0
+categorical__degree_MSc,0.0,0.0
+categorical__degree_MHM,0.0,0.0
 categorical__family_history_of_mental_illness_No,0.0,0.0

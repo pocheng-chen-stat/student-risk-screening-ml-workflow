@@ -95,7 +95,7 @@ def main() -> None:
         FIGURES_DIR / "confusion_matrix_highest_sensitivity.png",
     )
 
-    interpretation_outputs = create_interpretation_outputs(model_results, split.X_test, split.y_test)
+    interpretation_outputs = create_interpretation_outputs(model_results, split.X_test, split.y_test, split.X_train, split.y_train)
     for name, table in interpretation_outputs.items():
         table.to_csv(REPORTS_DIR / f"{name}.csv", index=False)
 

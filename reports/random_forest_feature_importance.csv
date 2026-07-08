@@ -1,15 +1,15 @@
 feature,feature_label,importance
-have_you_ever_had_suicidal_thoughts,Suicidal Thoughts,0.37906127952042445
-academic_pressure,Academic Pressure,0.20719298791969454
-financial_stress,Financial Stress,0.11290751320514335
-age,Age,0.059897410860711195
-work_study_hours,Work/Study Hours,0.049859797011236495
-dietary_habits,Dietary Habits,0.04633315533624303
-cgpa,CGPA,0.03810642497118458
-study_satisfaction,Study Satisfaction,0.030626874964801657
-degree,Degree,0.030046579619350876
-sleep_duration,Sleep Duration,0.023690452066293527
-gender,Gender,0.01140074475163835
-family_history_of_mental_illness,Family History of Mental Illness,0.010876779773278007
+have_you_ever_had_suicidal_thoughts,Suicidal Thoughts,0.3812646225275511
+academic_pressure,Academic Pressure,0.2070502577245643
+financial_stress,Financial Stress,0.11364772620941446
+age,Age,0.059809152758328314
+work_study_hours,Work/Study Hours,0.05033591607084755
+dietary_habits,Dietary Habits,0.045599181512370544
+cgpa,CGPA,0.03484923878964665
+degree,Degree,0.031420862692102126
+study_satisfaction,Study Satisfaction,0.030392279382992632
+sleep_duration,Sleep Duration,0.023901895927223415
+family_history_of_mental_illness,Family History of Mental Illness,0.01092993768580278
+gender,Gender,0.01079892871915622
 job_satisfaction,Job Satisfaction,0.0
 work_pressure,Work Pressure,0.0

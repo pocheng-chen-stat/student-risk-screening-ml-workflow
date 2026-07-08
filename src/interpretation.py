@@ -10,14 +10,29 @@ import os
 
 os.environ.setdefault("LOKY_MAX_CPU_COUNT", "1")
 
+import numpy as np
 import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
 from sklearn.inspection import permutation_importance
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
 
 from src.feature_display import (
     add_feature_labels,
     aggregate_coefficients_by_feature,
     aggregate_importance_by_feature,
+    parse_pipeline_feature,
 )
+
+
+def _one_hot_encoder_drop_first() -> OneHotEncoder:
+    """Return OneHotEncoder with a reference category for odds-ratio interpretation."""
+    try:
+        return OneHotEncoder(handle_unknown="ignore", drop="first", sparse_output=False)
+    except TypeError:
+        return OneHotEncoder(handle_unknown="ignore", drop="first", sparse=False)
 
 
 def get_feature_names(fitted_pipeline) -> list[str]:
@@ -82,7 +97,75 @@ def permutation_importance_table(
     return add_feature_labels(table)
 
 
-def create_interpretation_outputs(model_results: dict, X_test, y_test) -> dict[str, pd.DataFrame]:
+def logistic_odds_ratio_table(X_train: pd.DataFrame, y_train: pd.Series) -> pd.DataFrame:
+    """Fit an interpretable logistic model and return odds ratios.
+
+    The comparison models standardize numeric variables for predictive modeling.
+    For interpretation, this auxiliary logistic model deliberately keeps numeric
+    variables on their original scale and uses one-hot encoding with a reference
+    category. Therefore numeric coefficients can be read as a one-raw-unit
+    increase, while categorical coefficients are compared with a reference level.
+    """
+    numeric_features = X_train.select_dtypes(include="number").columns.tolist()
+    categorical_features = [column for column in X_train.columns if column not in numeric_features]
+
+    numeric_pipeline = Pipeline(steps=[("imputer", SimpleImputer(strategy="median"))])
+    categorical_pipeline = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            ("onehot", _one_hot_encoder_drop_first()),
+        ]
+    )
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("numeric", numeric_pipeline, numeric_features),
+            ("categorical", categorical_pipeline, categorical_features),
+        ]
+    )
+    model = LogisticRegression(max_iter=2000, solver="liblinear", C=1_000_000.0)
+    pipeline = Pipeline(steps=[("preprocess", preprocessor), ("model", model)])
+    pipeline.fit(X_train, y_train)
+
+    feature_names = pipeline.named_steps["preprocess"].get_feature_names_out().tolist()
+    coefficients = pipeline.named_steps["model"].coef_.ravel()
+
+    rows = []
+    for raw_feature, coefficient in zip(feature_names, coefficients):
+        parsed = parse_pipeline_feature(raw_feature, known_features=list(X_train.columns))
+        odds_ratio = float(np.exp(coefficient))
+        if parsed.category_level is None:
+            comparison = "one-unit increase"
+        else:
+            comparison = f"{parsed.category_label} vs. reference level"
+        rows.append(
+            {
+                "feature": parsed.base_feature,
+                "feature_label": parsed.base_label,
+                "level": parsed.category_level,
+                "level_label": parsed.category_label,
+                "comparison": comparison,
+                "coefficient": float(coefficient),
+                "abs_coefficient": abs(float(coefficient)),
+                "odds_ratio": odds_ratio,
+                "odds_change_percent": (odds_ratio - 1.0) * 100.0,
+                "direction": "Higher odds" if odds_ratio >= 1 else "Lower odds",
+            }
+        )
+
+    return (
+        pd.DataFrame(rows)
+        .sort_values("abs_coefficient", ascending=False)
+        .reset_index(drop=True)
+    )
+
+
+def create_interpretation_outputs(
+    model_results: dict,
+    X_test,
+    y_test,
+    X_train=None,
+    y_train=None,
+) -> dict[str, pd.DataFrame]:
     """Create raw and aggregated interpretation tables.
 
     Raw sklearn features are kept for transparency, while aggregated tables are
@@ -99,6 +182,9 @@ def create_interpretation_outputs(model_results: dict, X_test, y_test) -> dict[s
             logistic_raw,
             known_features=original_features,
         )
+
+    if X_train is not None and y_train is not None:
+        outputs["logistic_odds_ratios_raw_scale"] = logistic_odds_ratio_table(X_train, y_train)
 
     if "lasso_logistic" in model_results:
         lasso_raw = model_coefficients(model_results["lasso_logistic"]["model"])

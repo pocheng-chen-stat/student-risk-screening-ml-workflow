@@ -1,2 +1,2 @@
-raw_rows,removed_non_student_rows,removed_cgpa_zero_rows,removed_degree_other_rows,removed_financial_stress_invalid_rows,final_rows,final_positive_rate,dropped_columns
-27901,31,9,35,3,27823,0.5851992955468497,"id, city, profession"
+raw_rows,removed_non_student_rows,removed_cgpa_zero_rows,removed_degree_other_rows,removed_dietary_habits_other_rows,removed_sleep_duration_other_rows,removed_academic_pressure_zero_rows,removed_financial_stress_invalid_rows,final_rows,final_positive_rate,dropped_columns
+27901,31,9,35,12,18,3,3,27790,0.5852464915437208,"id, city, profession"

@@ -1,58 +1,74 @@
 # Student Risk Screening ML Workflow
 
-An end-to-end machine learning workflow for **tabular binary classification**, using the Kaggle Student Depression Dataset as a case study.
+This project demonstrates a **complete tabular data analysis workflow** using the Kaggle Student Depression Dataset as a case study. The goal is not to claim expertise in psychology or to build a clinical diagnostic tool. The goal is to show how I approach a real-looking dataset: define the analysis population, clean ambiguous records, explore key patterns, compare models with proper validation, and interpret the variables selected by the models.
 
-This repository is designed as a data-analysis portfolio project. The main purpose is to demonstrate a structured workflow: define the analysis scope, clean ambiguous records, compare models correctly, and interpret predictive signals across model families. It is **not** a clinical or psychological study, and it is not intended to diagnose depression.
+The central analytical question is:
 
-## Project Goal
+> Given student-level demographic, academic, lifestyle, and pressure-related variables, can we build a reproducible binary classification workflow and identify which variables repeatedly act as predictive warning signs in this dataset?
 
-The dataset is used as a case study for a general risk-screening workflow. The transferable skill is the analysis process, not domain expertise in mental health.
+## Responsible Use and Project Scope
+
+This dataset is treated as a **synthetic case-study dataset** for machine learning practice. The output of this project should be interpreted as dataset-level predictive patterns, not medical evidence.
+
+This project does **not** claim that:
+
+- the model diagnoses depression,
+- any variable causes depression,
+- the findings directly generalize to real clinical populations.
+
+A more appropriate interpretation is:
+
+> In this dataset, certain student characteristics are repeatedly associated with a higher predicted risk label. In a real setting, such information should only be used to support awareness, care, and further professional evaluation, not to automatically label people.
+
+## Analysis Story
+
+The project is organized around a standard analysis pipeline:
 
 ```text
 Raw data
-→ define analysis population
+→ define the analysis population
 → clean inconsistent or ambiguous records
-→ exploratory data analysis
-→ stratified train/test split
-→ cross-validation on the training set
-→ held-out test evaluation
-→ cross-model feature interpretation
-→ responsible discussion of limitations
+→ inspect key descriptive patterns
+→ split train/test data
+→ tune models using cross-validation on the training set
+→ evaluate final models on the held-out test set
+→ compare feature signals across models
+→ translate interpretable model coefficients into risk-oriented discussion
 ```
 
-This structure is meant to show that a model result is not created by simply applying algorithms. The analysis starts from data definition and ends with an interpretable, reproducible report.
-
-## Responsible Use and Scope
-
-The dataset is treated as a synthetic case-study dataset rather than a clinical survey. Results should be interpreted as **predictive patterns inside this dataset**, not as causal or medical conclusions.
-
-The project avoids claims such as:
-
-- “this factor causes depression”
-- “the model diagnoses depression”
-- “these results generalize to real clinical populations”
-
-Instead, the project uses safer language:
-
-- predictive signal
-- risk-screening style classification
-- dataset-level association
-- model interpretation
+This structure is the main point of the repository. Models are not applied just to produce numbers; each step is used to support the next step in the analysis.
 
 ## Data Scope and Cleaning
 
-Before modeling, the analysis defines a clear student-focused population. A small number of records are removed because they are inconsistent with the project scope or have ambiguous values.
+The original dataset contains a small number of records that are inconsistent with the student-focused analysis or difficult to interpret. Since these records account for a very small share of the dataset, removal is preferred over imputation or forced interpretation.
 
 | Cleaning rule | Reason |
 |---|---|
-| Keep only `Profession == Student` | The project is student-focused; non-student records are rare and scope-ambiguous |
-| Remove `CGPA == 0` | A zero CGPA is inconsistent with active student academic variables |
-| Remove `Degree == Others` | The category is ambiguous and rare |
-| Remove invalid `Financial Stress` values such as `?` | The value is not a valid numeric stress score |
-| Drop `City` | The project does not perform regional or spatial analysis |
-| Drop `id` | Identifier columns should not be predictive features |
+| Keep only `Profession == Student` | The analysis is student-focused; non-student records are rare and scope-ambiguous. |
+| Remove `CGPA == 0` | A zero CGPA is inconsistent with active student academic records. |
+| Remove `Academic Pressure == 0` | Academic pressure is treated as an ordinal pressure score; zero is outside the meaningful scale used in the analysis. |
+| Remove `Degree == Others` | The education category is ambiguous. |
+| Remove `Dietary Habits == Others` and `Sleep Duration == Others` | These categories are rare and not interpretable. |
+| Remove invalid `Financial Stress` values such as `?` | The value is not a valid numeric stress score. |
+| Drop `City` | The project does not perform regional or spatial analysis. |
+| Drop `id` | Identifier columns should not be used as predictive features. |
 
-The cleaning counts are saved to:
+Cleaning summary:
+
+| Item | Count |
+|---|---:|
+| Raw rows | 27,901 |
+| Removed non-student rows | 31 |
+| Removed CGPA = 0 rows | 9 |
+| Removed Degree = Others rows | 35 |
+| Removed Dietary Habits = Others rows | 12 |
+| Removed Sleep Duration = Others rows | 18 |
+| Removed Academic Pressure = 0 rows | 3 |
+| Removed invalid Financial Stress rows | 3 |
+| Final rows | 27,790 |
+| Positive risk-label rate after cleaning | 58.5% |
+
+The full cleaning report is saved in:
 
 ```text
 reports/cleaning_report.csv
@@ -60,7 +76,16 @@ reports/cleaning_report.csv
 
 ## Exploratory Data Analysis
 
-EDA is used to check target balance and inspect how the risk label varies across selected variables. These charts are descriptive only; they do not imply causality.
+EDA is not used here as decoration. It answers three basic questions before modeling:
+
+1. **Is the target label usable for classification?**  
+   The target distribution shows that both classes are present in meaningful proportions. The dataset is not a one-class or extremely imbalanced problem.
+
+2. **Do pressure-related variables show visible gradients before modeling?**  
+   Academic pressure and financial stress are selected because they are easy to explain, directly related to student burden, and later appear as important features across models.
+
+3. **Do severe warning-sign variables separate the risk label?**  
+   Suicidal thoughts are inspected because they represent a serious self-reported warning sign in the dataset. This is a descriptive check only, not a clinical conclusion.
 
 ![Target distribution](reports/figures/target_distribution.png)
 
@@ -68,56 +93,46 @@ EDA is used to check target balance and inspect how the risk label varies across
 
 ![Risk label rate by financial stress](reports/figures/depression_rate_by_financial_stress.png)
 
+![Risk label rate by suicidal thoughts](reports/figures/depression_rate_by_have_you_ever_had_suicidal_thoughts.png)
+
+These charts provide the first layer of the story: the risk label is not randomly scattered. Higher academic pressure and higher financial stress show visibly higher risk-label rates, and students reporting suicidal thoughts have a much higher risk-label rate in this dataset. These patterns motivate model-based comparison and interpretation in the next sections.
+
 ## Modeling Strategy
 
-The workflow keeps validation logic strict:
+The validation design is intentionally strict:
 
-1. Split cleaned data into training and test sets.
-2. Use cross-validation and hyperparameter tuning only on the training set.
-3. Evaluate selected models once on the held-out test set.
+1. Split the cleaned data into training and test sets.
+2. Use cross-validation and hyperparameter tuning only inside the training set.
+3. Evaluate the selected models once on the held-out test set.
 
-This avoids using the test set for tuning decisions.
+This prevents the test set from influencing tuning decisions.
 
-## Methods Compared
-
-The project compares both interpretable linear models and flexible machine-learning models:
+The project compares interpretable linear models and more flexible machine-learning models:
 
 | Model family | Models | Preprocessing |
 |---|---|---|
 | Linear / distance / margin models | Logistic Regression, Lasso Logistic, Ridge Logistic, KNN, Linear SVM | numeric imputation + standardization; categorical imputation + one-hot encoding |
 | Tree-based models | Random Forest, XGBoost | numeric imputation without standardization; categorical imputation + one-hot encoding |
 
-Logistic regression is intentionally included because it remains competitive and provides readable coefficient directions. Tree-based models are included to compare nonlinear predictive performance and feature importance.
+This separation matters because tree-based models do not need numeric standardization, while logistic regression, KNN, and SVM are more sensitive to feature scale.
 
-## Evaluation Metrics
+## Results: Model Comparison
 
-The held-out test report includes:
+The best held-out ROC-AUC is from **XGBoost** (ROC-AUC = 0.922). The highest sensitivity is from **KNN** (sensitivity = 0.907).
 
-- Accuracy
-- ROC-AUC
-- PR-AUC
-- Sensitivity / Recall
-- Specificity
-- Precision
-- F1 score
-
-Sensitivity is included because false negatives matter in screening-style tasks. This still does not turn the model into a diagnostic tool.
-
-## Results
-
-The strongest held-out ROC-AUC is from **XGBoost** (ROC-AUC = 0.924). The highest sensitivity is from **KNN** (sensitivity = 0.907).
+However, the main finding is not simply “XGBoost wins.” The performance gap among XGBoost, Lasso Logistic, standard Logistic Regression, Ridge Logistic, and Linear SVM is small. This means the analysis should not stop at choosing one model. Since logistic models remain competitive, they are useful for interpreting how explanatory variables relate to the predicted risk label.
 
 ### Held-Out Test Performance
 
 | Model               |   Accuracy |   ROC-AUC |   PR-AUC |   Sensitivity |   Specificity |   Precision |    F1 |
 |:--------------------|-----------:|----------:|---------:|--------------:|--------------:|------------:|------:|
-| XGBoost             |      0.849 |     0.924 |    0.941 |         0.89  |         0.791 |       0.858 | 0.874 |
-| Lasso Logistic      |      0.849 |     0.923 |    0.94  |         0.886 |         0.797 |       0.86  | 0.873 |
-| Linear SVM          |      0.849 |     0.923 |    0.94  |         0.887 |         0.795 |       0.859 | 0.873 |
-| Ridge Logistic      |      0.848 |     0.922 |    0.94  |         0.885 |         0.796 |       0.86  | 0.872 |
-| Logistic Regression |      0.848 |     0.922 |    0.94  |         0.885 |         0.796 |       0.86  | 0.872 |
-| Random Forest       |      0.841 |     0.919 |    0.938 |         0.853 |         0.824 |       0.873 | 0.862 |
-| KNN                 |      0.84  |     0.913 |    0.925 |         0.907 |         0.746 |       0.834 | 0.869 |
+| XGBoost             |      0.844 |     0.922 |    0.939 |         0.884 |         0.787 |       0.854 | 0.869 |
+| Lasso Logistic      |      0.848 |     0.921 |    0.938 |         0.887 |         0.793 |       0.858 | 0.872 |
+| Logistic Regression |      0.848 |     0.921 |    0.938 |         0.888 |         0.791 |       0.857 | 0.872 |
+| Ridge Logistic      |      0.848 |     0.921 |    0.938 |         0.888 |         0.791 |       0.857 | 0.872 |
+| Linear SVM          |      0.846 |     0.921 |    0.938 |         0.889 |         0.786 |       0.854 | 0.871 |
+| Random Forest       |      0.839 |     0.917 |    0.933 |         0.853 |         0.818 |       0.869 | 0.861 |
+| KNN                 |      0.842 |     0.911 |    0.922 |         0.907 |         0.749 |       0.836 | 0.870 |
 
 ![Held-out metric comparison](reports/figures/model_metric_comparison.png)
 
@@ -127,85 +142,92 @@ The strongest held-out ROC-AUC is from **XGBoost** (ROC-AUC = 0.924). The highes
 
 ### Training-Set Cross-Validation
 
+Cross-validation is performed only on the training set. The held-out test set is used once at the end to estimate final performance.
+
 | Model               |   Best CV ROC-AUC |   CV Std. | Selected Parameters                                             |
 |:--------------------|------------------:|----------:|:----------------------------------------------------------------|
-| Lasso Logistic      |             0.921 |     0.002 | {'C': 0.1}                                                      |
-| Logistic Regression |             0.921 |     0.003 | {'C': 0.1}                                                      |
-| Ridge Logistic      |             0.921 |     0.003 | {'C': 0.1}                                                      |
-| Linear SVM          |             0.92  |     0.003 | {'C': 0.1}                                                      |
-| XGBoost             |             0.919 |     0.002 | {'learning_rate': 0.05, 'max_depth': 3, 'n_estimators': 150}    |
-| Random Forest       |             0.915 |     0.002 | {'max_depth': None, 'min_samples_leaf': 5, 'n_estimators': 150} |
-| KNN                 |             0.909 |     0.002 | {'n_neighbors': 25}                                             |
+| Lasso Logistic      |             0.921 |     0.000 | {'C': 0.05}                                                     |
+| Logistic Regression |             0.921 |     0.000 | {'C': 0.1}                                                      |
+| Ridge Logistic      |             0.921 |     0.000 | {'C': 0.1}                                                      |
+| Linear SVM          |             0.921 |     0.000 | {'C': 0.1}                                                      |
+| XGBoost             |             0.920 |     0.000 | {'learning_rate': 0.05, 'max_depth': 3, 'n_estimators': 150}    |
+| Random Forest       |             0.915 |     0.001 | {'max_depth': None, 'min_samples_leaf': 5, 'n_estimators': 150} |
+| KNN                 |             0.911 |     0.001 | {'n_neighbors': 25}                                             |
 
-## Cross-Model Feature Interpretation
+## From Prediction to Explanation
 
-The goal of this section is not to claim psychological causality. Instead, the analysis asks whether similar predictive signals appear across linear and tree-based models.
+After comparing model performance, the next question is:
+
+> Which explanatory variables are repeatedly selected as important, and how can they be interpreted?
+
+This project uses two complementary views:
+
+1. **Cross-model importance**: Lasso, Random Forest, and XGBoost are compared side by side to find repeated predictive signals.
+2. **Logistic odds ratios**: Logistic regression is used to translate selected coefficients into an interpretable `exp(beta)` form.
+
+## Cross-Model Feature Importance
 
 ![Cross-model feature importance](reports/figures/cross_model_feature_importance.png)
 
-### Lasso Direction Summary
+The most consistent predictors across model families are **Suicidal Thoughts**, **Academic Pressure**, **Financial Stress**, **Dietary Habits**, **Sleep Duration**, **Study Satisfaction**, and **Work/Study Hours**. Since these variables appear repeatedly across linear and tree-based models, they are more convincing as dataset-level predictive signals than variables selected by only one model.
 
-Lasso is useful because it gives both variable magnitude and the direction of the selected signal. The ranking below uses the absolute coefficient size, while the direction column keeps the sign information.
+| Feature                          | Lasso | Random Forest | XGBoost | Models in Top 10 |
+|:---------------------------------|:------|:--------------|:--------|-----------------:|
+| Academic Pressure                | 2     | 2             | 2       | 3 |
+| Age                              | 5     | 4             | 6       | 3 |
+| Dietary Habits                   | 4     | 6             | 3       | 3 |
+| Financial Stress                 | 3     | 3             | 4       | 3 |
+| Sleep Duration                   | 7     | 10            | 7       | 3 |
+| Study Satisfaction               | 8     | 9             | 9       | 3 |
+| Suicidal Thoughts                | 1     | 1             | 1       | 3 |
+| Work/Study Hours                 | 6     | 5             | 8       | 3 |
+| CGPA                             | 10    | 7             |         | 2 |
+| Degree                           |       | 8             | 5       | 2 |
+| Family History of Mental Illness | 9     |               | 10      | 2 |
 
-| Feature            | Risk-related Level   | Direction   |   Abs. Coefficient |
-|:-------------------|:---------------------|:------------|-------------------:|
-| Suicidal Thoughts  | No                   | Negative    |              1.228 |
-| Academic Pressure  | numeric increase     | Positive    |              1.151 |
-| Financial Stress   | numeric increase     | Positive    |              0.79  |
-| Dietary Habits     | Unhealthy            | Positive    |              0.581 |
-| Age                | numeric increase     | Negative    |              0.535 |
-| Work/Study Hours   | numeric increase     | Positive    |              0.426 |
-| Sleep Duration     | Less Than 5 Hours    | Positive    |              0.376 |
-| Study Satisfaction | numeric increase     | Negative    |              0.327 |
+## Logistic Regression Odds-Ratio Interpretation
 
-### Logistic Regression Interpretation
+Logistic regression is useful because coefficients can be translated into odds ratios. For a coefficient beta, `exp(beta)` gives the multiplicative change in the odds of the risk label.
 
-Traditional logistic regression remains valuable here because its coefficients give a direct, readable risk-direction summary. In this dataset, variables such as academic pressure and financial stress tend to carry positive coefficients, while some lifestyle or demographic levels carry negative coefficients. These are predictive associations in a synthetic dataset, not causal explanations.
+For this interpretation table, an auxiliary logistic model is fit with numeric variables kept on their original scale. Therefore:
 
-Top positive logistic signals:
+- for numeric variables, `exp(beta)` means the odds multiplier for a **one-unit increase**, holding other variables fixed;
+- for categorical variables, `exp(beta)` compares the displayed level with the reference level created during one-hot encoding.
 
-| Feature           | Level            |   Coefficient |
-|:------------------|:-----------------|--------------:|
-| Suicidal Thoughts | Yes              |         1.264 |
-| Academic Pressure | numeric increase |         1.154 |
-| Financial Stress  | numeric increase |         0.792 |
-| Dietary Habits    | Unhealthy        |         0.562 |
-| Work/Study Hours  | numeric increase |         0.43  |
+| Feature           | Comparison                            | Direction   | Coefficient | Odds Ratio exp(beta) | Approx. odds change |
+|:------------------|:--------------------------------------|:------------|------------:|:---------------------|:--------------------|
+| Suicidal Thoughts | Yes vs. reference level               | Higher odds | 2.511 | 12.31x | +1131% |
+| Dietary Habits    | Unhealthy vs. reference level         | Higher odds | 1.089 | 2.97x  | +197% |
+| Academic Pressure | one-unit increase                     | Higher odds | 0.844 | 2.33x  | +133% |
+| Financial Stress  | one-unit increase                     | Higher odds | 0.558 | 1.75x  | +75%  |
+| Dietary Habits    | Moderate vs. reference level          | Higher odds | 0.493 | 1.64x  | +64%  |
+| Degree            | LLB vs. reference level               | Higher odds | 0.414 | 1.51x  | +51%  |
+| Sleep Duration    | Less Than 5 Hours vs. reference level | Higher odds | 0.384 | 1.47x  | +47%  |
+| Degree            | MBBS vs. reference level              | Higher odds | 0.363 | 1.44x  | +44%  |
 
-Top negative logistic signals:
+Examples of interpretation inside this dataset:
 
-| Feature            | Level            |   Coefficient |
-|:-------------------|:-----------------|--------------:|
-| Age                | numeric increase |        -0.556 |
-| Study Satisfaction | numeric increase |        -0.329 |
-| Job Satisfaction   | numeric increase |        -0.038 |
+- A one-point increase in **Academic Pressure** multiplies the model-estimated odds of the risk label by about **2.33 times**, holding other variables fixed.
+- A one-point increase in **Financial Stress** multiplies the odds by about **1.75 times**, holding other variables fixed.
+- Students reporting **Suicidal Thoughts = Yes** have much higher model-estimated odds than the reference level in this dataset.
+- **Less than 5 hours of sleep** is associated with higher predicted odds than the reference sleep-duration level.
 
-### Cross-Model Consensus
-
-A feature is more convincing as a dataset-level predictive signal when it appears repeatedly across model families.
-
-| Feature                          | Lasso   | Random Forest   | XGBoost   |   Models in Top 10 |
-|:---------------------------------|:--------|:----------------|:----------|-------------------:|
-| Academic Pressure                | 2       | 2               | 2         |                  3 |
-| Age                              | 5       | 4               | 7         |                  3 |
-| Degree                           | 10      | 9               | 5         |                  3 |
-| Dietary Habits                   | 4       | 6               | 3         |                  3 |
-| Financial Stress                 | 3       | 3               | 4         |                  3 |
-| Sleep Duration                   | 7       | 10              | 6         |                  3 |
-| Study Satisfaction               | 8       | 8               | 9         |                  3 |
-| Suicidal Thoughts                | 1       | 1               | 1         |                  3 |
-| Work/Study Hours                 | 6       | 5               | 8         |                  3 |
-| Family History of Mental Illness | 9       |                 | 10        |                  2 |
-| CGPA                             |         | 7               |           |                  1 |
-
+These interpretations are useful because they connect the predictive model back to understandable student-level patterns. They are still associations learned from a synthetic dataset, not causal or clinical effects.
 
 ## Discussion
 
-The results show that several models perform similarly on held-out ROC-AUC. XGBoost gives the highest ROC-AUC in this run, but traditional logistic models are close behind and remain useful because they provide a clearer direction-of-risk interpretation.
+The analysis shows a coherent pattern: the variables most repeatedly selected by the models are related to academic burden, financial stress, self-reported suicidal thoughts, lifestyle habits, sleep, study satisfaction, and workload. This is exactly the type of result a risk-screening workflow should surface: not just a predicted label, but a set of interpretable warning signs.
 
-The feature-importance comparison is more informative than any single model ranking. Variables such as suicidal thoughts, academic pressure, financial stress, dietary habits, and sleep duration appear repeatedly across model families. This repeated appearance is treated as cross-model predictive agreement, not as proof of causal effect.
+From a practical and human perspective, the result suggests that student mental well-being is a topic that deserves attention. In real life, students facing strong academic pressure, financial stress, poor sleep, unhealthy daily routines, or suicidal thoughts should not be reduced to a model score. These signs should prompt care, conversation, and professional support when needed.
 
-The Lasso panel ranks variables by absolute coefficient size and annotates positive or negative direction. This preserves two pieces of information at once: which variables matter most in the linear model and whether the selected signal is associated with higher or lower predicted risk in this dataset.
+A responsible use of this type of analysis would be:
+
+- to identify broad patterns worth monitoring,
+- to support early awareness and discussion,
+- to encourage supportive intervention rather than judgment,
+- to remind people to pay attention when friends show serious distress or repeatedly mention pressure, hopelessness, or self-harm-related thoughts.
+
+The project therefore demonstrates both technical workflow design and responsible interpretation: the model helps organize evidence, but human care and professional judgment remain essential.
 
 ## Limitations
 
@@ -214,6 +236,7 @@ The Lasso panel ranks variables by absolute coefficient size and annotates posit
 - Feature importance can change with preprocessing, model choice, and sampling variation.
 - The project does not perform clinical validation, fairness assessment, or external validation.
 - City is intentionally excluded because the project does not attempt regional analysis.
+- The odds-ratio table is designed for interpretation; it should be read as model-based association, not as a causal effect.
 
 ## How to Run
 
@@ -269,10 +292,11 @@ student-risk-screening-ml-workflow/
 
 ## Skills Demonstrated
 
-- Data scope definition and anomaly cleaning
-- Reproducible EDA and reporting
-- Train/test split with training-set cross-validation
-- Model comparison beyond accuracy
-- Separate preprocessing strategies by model family
-- Linear and tree-based feature interpretation
-- Responsible discussion of predictive results and limitations
+- Defining a clear analysis population
+- Cleaning ambiguous and inconsistent records
+- Designing EDA around specific analytical questions
+- Building a reproducible train/test + cross-validation workflow
+- Comparing models with multiple metrics instead of accuracy alone
+- Separating preprocessing strategies by model family
+- Interpreting both feature importance and logistic odds ratios
+- Communicating results responsibly for a non-technical audience

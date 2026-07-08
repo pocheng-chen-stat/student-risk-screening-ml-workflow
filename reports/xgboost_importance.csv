@@ -1,50 +1,48 @@
 feature,importance
-categorical__have_you_ever_had_suicidal_thoughts_No,0.52971894
-numeric__academic_pressure,0.12093639
-numeric__financial_stress,0.06944152
-categorical__dietary_habits_Unhealthy,0.03932885
-categorical__dietary_habits_Healthy,0.037182495
-numeric__age,0.034038898
-numeric__work_study_hours,0.03381389
-numeric__study_satisfaction,0.023460515
-categorical__sleep_duration_'Less than 5 hours',0.016948236
-categorical__sleep_duration_'More than 8 hours',0.014457855
-categorical__family_history_of_mental_illness_No,0.011178075
-categorical__degree_MA,0.009658746
-numeric__cgpa,0.006279635
-categorical__degree_LLM,0.006244758
-categorical__degree_B.Pharm,0.005556439
-categorical__degree_BE,0.0051641483
-categorical__degree_MSc,0.00513049
-categorical__degree_BA,0.0051002502
-categorical__sleep_duration_'5-6 hours',0.0047625075
-categorical__degree_MD,0.0042742942
-categorical__degree_BBA,0.0035656153
-categorical__degree_M.Pharm,0.003209107
-categorical__sleep_duration_'7-8 hours',0.0031269134
-categorical__degree_'Class 12',0.0029722578
-categorical__degree_B.Arch,0.0024296148
-categorical__dietary_habits_Moderate,0.002019555
-categorical__dietary_habits_Others,0.0
-categorical__sleep_duration_Others,0.0
-categorical__gender_Female,0.0
+categorical__have_you_ever_had_suicidal_thoughts_No,0.5272286
+numeric__academic_pressure,0.11997142
+numeric__financial_stress,0.069122046
+categorical__dietary_habits_Unhealthy,0.043187343
+categorical__dietary_habits_Healthy,0.036128543
+numeric__age,0.03394894
+numeric__work_study_hours,0.030185824
+numeric__study_satisfaction,0.024733534
+categorical__sleep_duration_'Less than 5 hours',0.01631807
+categorical__sleep_duration_'More than 8 hours',0.015014007
+categorical__family_history_of_mental_illness_No,0.013418994
+categorical__degree_'Class 12',0.0086517725
+categorical__degree_MA,0.007451463
+categorical__degree_BE,0.0070877736
+categorical__degree_MSc,0.0069655282
+numeric__cgpa,0.006744807
+categorical__gender_Female,0.0057248403
+categorical__degree_BA,0.005046355
+categorical__degree_BHM,0.0042481897
+categorical__degree_ME,0.0038534822
+categorical__degree_LLM,0.0036724415
+categorical__degree_MD,0.0033511466
+categorical__degree_B.Arch,0.0031716074
+categorical__degree_M.Pharm,0.0025586158
+categorical__sleep_duration_'5-6 hours',0.0022147072
+categorical__dietary_habits_Moderate,0.0
 categorical__gender_Male,0.0
 numeric__job_satisfaction,0.0
 numeric__work_pressure,0.0
+categorical__sleep_duration_'7-8 hours',0.0
 categorical__degree_B.Tech,0.0
-categorical__degree_B.Ed,0.0
+categorical__degree_B.Com,0.0
 categorical__degree_M.Com,0.0
 categorical__degree_LLB,0.0
 categorical__degree_BSc,0.0
-categorical__degree_BHM,0.0
+categorical__degree_BBA,0.0
 categorical__degree_BCA,0.0
-categorical__degree_B.Com,0.0
-categorical__degree_M.Tech,0.0
+categorical__degree_B.Ed,0.0
+categorical__degree_B.Pharm,0.0
 categorical__degree_M.Ed,0.0
 categorical__degree_MCA,0.0
 categorical__degree_MBBS,0.0
 categorical__degree_MBA,0.0
-categorical__degree_ME,0.0
+categorical__degree_M.Tech,0.0
 categorical__degree_PhD,0.0
 categorical__degree_MHM,0.0
 categorical__have_you_ever_had_suicidal_thoughts_Yes,0.0

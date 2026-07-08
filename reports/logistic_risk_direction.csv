@@ -1,15 +1,15 @@
 feature,feature_label,level,level_label,coefficient,abs_coefficient,direction
-have_you_ever_had_suicidal_thoughts,Suicidal Thoughts,Yes,Yes,1.2636023184460328,1.2636023184460328,Positive
-academic_pressure,Academic Pressure,,,1.1541112792980428,1.1541112792980428,Positive
-financial_stress,Financial Stress,,,0.7918299370677978,0.7918299370677978,Positive
-dietary_habits,Dietary Habits,Unhealthy,Unhealthy,0.5618928659148522,0.5618928659148522,Positive
-age,Age,,,-0.5561539698010844,0.5561539698010844,Negative
-work_study_hours,Work/Study Hours,,,0.4302165041240841,0.4302165041240841,Positive
-sleep_duration,Sleep Duration,'Less than 5 hours',Less Than 5 Hours,0.3682468497924457,0.3682468497924457,Positive
-study_satisfaction,Study Satisfaction,,,-0.3286354204334521,0.3286354204334521,Negative
-degree,Degree,LLM,Llm,0.28591104244226967,0.28591104244226967,Positive
-family_history_of_mental_illness,Family History of Mental Illness,Yes,Yes,0.15844572118914937,0.15844572118914937,Positive
-cgpa,CGPA,,,0.084205918276196,0.084205918276196,Positive
-gender,Gender,Female,Female,0.05009405543428702,0.05009405543428702,Positive
-job_satisfaction,Job Satisfaction,,,-0.037812814535296634,0.037812814535296634,Negative
+have_you_ever_had_suicidal_thoughts,Suicidal Thoughts,Yes,Yes,1.2757979111230195,1.2757979111230195,Positive
+academic_pressure,Academic Pressure,,,1.1521706185350407,1.1521706185350407,Positive
+financial_stress,Financial Stress,,,0.7915962729014939,0.7915962729014939,Positive
+age,Age,,,-0.5768186709909778,0.5768186709909778,Negative
+dietary_habits,Dietary Habits,Unhealthy,Unhealthy,0.575426142584096,0.575426142584096,Positive
+work_study_hours,Work/Study Hours,,,0.44026627345917213,0.44026627345917213,Positive
+sleep_duration,Sleep Duration,'Less than 5 hours',Less Than 5 Hours,0.3580612619050754,0.3580612619050754,Positive
+study_satisfaction,Study Satisfaction,,,-0.33217006961245005,0.33217006961245005,Negative
+degree,Degree,LLB,Llb,0.20833259234006982,0.20833259234006982,Positive
+family_history_of_mental_illness,Family History of Mental Illness,Yes,Yes,0.17004611544044812,0.17004611544044812,Positive
+cgpa,CGPA,,,0.09209580758784094,0.09209580758784094,Positive
+gender,Gender,Female,Female,0.038232056329178504,0.038232056329178504,Positive
+job_satisfaction,Job Satisfaction,,,-0.006941940202308262,0.006941940202308262,Negative
 work_pressure,Work Pressure,,,0.0,0.0,Positive
