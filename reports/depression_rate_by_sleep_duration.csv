@@ -1,0 +1,6 @@
+sleep_duration,count,depression_rate
+'Less than 5 hours',8285,0.6450211225105612
+'7-8 hours',7325,0.5941296928327645
+'5-6 hours',6169,0.568973901766899
+'More than 8 hours',6026,0.5089611682708264
+Others,18,0.5

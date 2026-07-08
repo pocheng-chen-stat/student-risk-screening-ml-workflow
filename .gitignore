@@ -6,8 +6,3 @@ venv/
 
 data/processed/*
 !data/processed/.gitkeep
-reports/*
-!reports/.gitkeep
-!reports/figures/
-reports/figures/*
-!reports/figures/.gitkeep

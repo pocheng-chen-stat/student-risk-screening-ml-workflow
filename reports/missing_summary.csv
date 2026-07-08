@@ -1,0 +1,16 @@
+feature,missing_count,missing_rate
+gender,0,0.0
+age,0,0.0
+academic_pressure,0,0.0
+work_pressure,0,0.0
+cgpa,0,0.0
+study_satisfaction,0,0.0
+job_satisfaction,0,0.0
+sleep_duration,0,0.0
+dietary_habits,0,0.0
+degree,0,0.0
+have_you_ever_had_suicidal_thoughts,0,0.0
+work_study_hours,0,0.0
+financial_stress,0,0.0
+family_history_of_mental_illness,0,0.0
+depression,0,0.0
