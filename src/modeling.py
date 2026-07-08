@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import inspect
 import os
 
 os.environ.setdefault("LOKY_MAX_CPU_COUNT", "1")
@@ -41,7 +42,6 @@ class SplitData:
 
 
 def get_feature_target(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
-    """Split a cleaned DataFrame into features and target."""
     if TARGET_COLUMN not in df.columns:
         raise ValueError(f"Target column missing: {TARGET_COLUMN}")
     X = df.drop(columns=[TARGET_COLUMN])
@@ -49,13 +49,7 @@ def get_feature_target(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     return X, y
 
 
-def make_train_test_split(
-    df: pd.DataFrame,
-    *,
-    test_size: float = 0.25,
-    random_state: int = 42,
-) -> SplitData:
-    """Create a stratified train/test split."""
+def make_train_test_split(df: pd.DataFrame, *, test_size: float = 0.25, random_state: int = 42) -> SplitData:
     X, y = get_feature_target(df)
     X_train, X_test, y_train, y_test = train_test_split(
         X,
@@ -68,14 +62,12 @@ def make_train_test_split(
 
 
 def identify_feature_types(X: pd.DataFrame) -> tuple[list[str], list[str]]:
-    """Identify numeric and categorical feature columns."""
     numeric_features = X.select_dtypes(include="number").columns.tolist()
     categorical_features = [column for column in X.columns if column not in numeric_features]
     return numeric_features, categorical_features
 
 
 def _one_hot_encoder() -> OneHotEncoder:
-    """Create an sklearn-version-compatible one-hot encoder."""
     try:
         return OneHotEncoder(handle_unknown="ignore", sparse_output=False)
     except TypeError:
@@ -83,12 +75,6 @@ def _one_hot_encoder() -> OneHotEncoder:
 
 
 def build_preprocessor(X: pd.DataFrame, *, scale_numeric: bool) -> ColumnTransformer:
-    """Build preprocessing for a model family.
-
-    Linear, distance-based, and margin-based models use scaled numeric features.
-    Tree-based models keep numeric features unscaled but still require categorical
-    encoding in sklearn workflows.
-    """
     numeric_features, categorical_features = identify_feature_types(X)
 
     numeric_steps = [("imputer", SimpleImputer(strategy="median"))]
@@ -111,21 +97,21 @@ def build_preprocessor(X: pd.DataFrame, *, scale_numeric: bool) -> ColumnTransfo
     )
 
 
-def _linear_svc(random_state: int) -> LinearSVC:
-    """Create a LinearSVC with version-compatible options."""
-    try:
-        return LinearSVC(max_iter=5000, random_state=random_state, dual="auto")
-    except TypeError:
-        return LinearSVC(max_iter=5000, random_state=random_state)
+def make_logistic_regression(*, solver: str, l1_ratio: float, C: float = 1.0, max_iter: int = 1000) -> LogisticRegression:
+    """Create LogisticRegression compatible with old and new sklearn versions.
+
+    sklearn 1.8 deprecates the ``penalty`` argument in favor of ``l1_ratio``.
+    Older versions still need ``penalty`` to request L1 regularization.
+    """
+    penalty_default = inspect.signature(LogisticRegression).parameters["penalty"].default
+    if penalty_default == "deprecated":
+        return LogisticRegression(max_iter=max_iter, solver=solver, C=C, l1_ratio=l1_ratio)
+
+    penalty = "l1" if l1_ratio == 1.0 else "l2"
+    return LogisticRegression(max_iter=max_iter, solver=solver, C=C, penalty=penalty)
 
 
 def build_model_specs(X: pd.DataFrame, *, random_state: int = 42) -> dict[str, tuple[Pipeline, dict]]:
-    """Create models and compact tuning grids.
-
-    The grids are intentionally compact so the project can run on a normal
-    laptop. The goal is to demonstrate a correct workflow, not to perform an
-    exhaustive benchmark.
-    """
     scaled_preprocessor = build_preprocessor(X, scale_numeric=True)
     tree_preprocessor = build_preprocessor(X, scale_numeric=False)
 
@@ -134,7 +120,7 @@ def build_model_specs(X: pd.DataFrame, *, random_state: int = 42) -> dict[str, t
             Pipeline(
                 steps=[
                     ("preprocess", scaled_preprocessor),
-                    ("model", LogisticRegression(max_iter=1000, solver="liblinear", penalty="l2")),
+                    ("model", make_logistic_regression(max_iter=1000, solver="liblinear", l1_ratio=0.0)),
                 ]
             ),
             {"model__C": [0.1, 1.0, 10.0]},
@@ -143,19 +129,19 @@ def build_model_specs(X: pd.DataFrame, *, random_state: int = 42) -> dict[str, t
             Pipeline(
                 steps=[
                     ("preprocess", scaled_preprocessor),
-                    ("model", LogisticRegression(max_iter=2000, penalty="l1", solver="liblinear")),
+                    ("model", make_logistic_regression(max_iter=1000, solver="liblinear", l1_ratio=1.0)),
                 ]
             ),
-            {"model__C": [0.1, 1.0]},
+            {"model__C": [0.05, 0.1, 1.0]},
         ),
         "ridge_logistic": (
             Pipeline(
                 steps=[
                     ("preprocess", scaled_preprocessor),
-                    ("model", LogisticRegression(max_iter=1000, solver="liblinear", penalty="l2")),
+                    ("model", make_logistic_regression(max_iter=1000, solver="liblinear", l1_ratio=0.0)),
                 ]
             ),
-            {"model__C": [0.1, 1.0]},
+            {"model__C": [0.1, 1.0, 10.0]},
         ),
         "knn": (
             Pipeline(
@@ -170,10 +156,10 @@ def build_model_specs(X: pd.DataFrame, *, random_state: int = 42) -> dict[str, t
             Pipeline(
                 steps=[
                     ("preprocess", scaled_preprocessor),
-                    ("model", _linear_svc(random_state)),
+                    ("model", LinearSVC(max_iter=5000, random_state=random_state)),
                 ]
             ),
-            {"model__C": [0.1, 1.0]},
+            {"model__C": [0.1, 1.0, 10.0]},
         ),
         "random_forest": (
             Pipeline(
@@ -190,8 +176,8 @@ def build_model_specs(X: pd.DataFrame, *, random_state: int = 42) -> dict[str, t
                 ]
             ),
             {
-                "model__n_estimators": [120],
-                "model__max_depth": [None, 10],
+                "model__n_estimators": [150],
+                "model__max_depth": [None, 8],
                 "model__min_samples_leaf": [5],
             },
         ),
@@ -216,7 +202,7 @@ def build_model_specs(X: pd.DataFrame, *, random_state: int = 42) -> dict[str, t
                 ]
             ),
             {
-                "model__n_estimators": [100],
+                "model__n_estimators": [150],
                 "model__max_depth": [3],
                 "model__learning_rate": [0.05],
             },
@@ -228,7 +214,6 @@ def build_model_specs(X: pd.DataFrame, *, random_state: int = 42) -> dict[str, t
 
 
 def get_model_score(model: Pipeline, X: pd.DataFrame) -> np.ndarray:
-    """Return probability-like scores for ranking metrics."""
     if hasattr(model, "predict_proba"):
         return model.predict_proba(X)[:, 1]
     if hasattr(model, "decision_function"):
@@ -237,7 +222,6 @@ def get_model_score(model: Pipeline, X: pd.DataFrame) -> np.ndarray:
 
 
 def compute_metrics(y_true, y_pred, y_score) -> dict[str, float]:
-    """Compute evaluation metrics for a binary classifier."""
     tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
     specificity = tn / (tn + fp) if (tn + fp) else 0.0
     return {
@@ -257,9 +241,7 @@ def tune_and_evaluate_models(
     random_state: int = 42,
     cv_splits: int = 3,
     scoring: str = "roc_auc",
-    verbose: bool = True,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
-    """Tune models on the training set and evaluate once on held-out test data."""
     specs = build_model_specs(split.X_train, random_state=random_state)
     cv = StratifiedKFold(n_splits=cv_splits, shuffle=True, random_state=random_state)
 
@@ -268,9 +250,7 @@ def tune_and_evaluate_models(
     results = {}
 
     for name, (pipeline, param_grid) in specs.items():
-        if verbose:
-            print(f"[modeling] Tuning {name} ...", flush=True)
-
+        print(f"[modeling] Tuning {name} ...")
         search = GridSearchCV(
             estimator=pipeline,
             param_grid=param_grid,
@@ -287,12 +267,14 @@ def tune_and_evaluate_models(
         y_score = get_model_score(best_model, split.X_test)
         metrics = compute_metrics(split.y_test, y_pred, y_score)
 
+        print(f"[modeling] Finished {name}: CV ROC-AUC={search.best_score_:.3f}, test ROC-AUC={metrics['roc_auc']:.3f}")
+
         cv_rows.append(
             {
                 "model": name,
                 "best_cv_roc_auc": search.best_score_,
                 "cv_std_roc_auc": search.cv_results_["std_test_score"][search.best_index_],
-                "best_params": str(search.best_params_),
+                "best_params": search.best_params_,
             }
         )
         test_rows.append({"model": name, **metrics})

@@ -1,93 +1,94 @@
-## Model Performance
+## Results
 
-Held-out test performance after training-set cross-validation tuning:
+The strongest held-out ROC-AUC is from **XGBoost** (ROC-AUC = 0.924). The highest sensitivity is from **KNN** (sensitivity = 0.907).
 
-| model          |   accuracy |   roc_auc |   pr_auc |   sensitivity_recall |   specificity |   precision |    f1 |
-|:---------------|-----------:|----------:|---------:|---------------------:|--------------:|------------:|------:|
-| lasso_logistic |      0.849 |     0.923 |    0.94  |                0.885 |         0.797 |       0.86  | 0.873 |
-| svm_linear     |      0.849 |     0.923 |    0.94  |                0.887 |         0.795 |       0.859 | 0.873 |
-| logistic       |      0.848 |     0.922 |    0.94  |                0.885 |         0.796 |       0.86  | 0.872 |
-| ridge_logistic |      0.848 |     0.922 |    0.94  |                0.885 |         0.796 |       0.86  | 0.872 |
-| xgboost        |      0.846 |     0.921 |    0.939 |                0.889 |         0.785 |       0.854 | 0.871 |
-| random_forest  |      0.84  |     0.919 |    0.937 |                0.851 |         0.824 |       0.872 | 0.861 |
-| knn            |      0.84  |     0.913 |    0.925 |                0.907 |         0.746 |       0.834 | 0.869 |
+### Held-Out Test Performance
 
-Training-set cross-validation stability:
+| Model               |   Accuracy |   ROC-AUC |   PR-AUC |   Sensitivity |   Specificity |   Precision |    F1 |
+|:--------------------|-----------:|----------:|---------:|--------------:|--------------:|------------:|------:|
+| XGBoost             |      0.848 |     0.924 |    0.941 |         0.889 |         0.791 |       0.857 | 0.873 |
+| Lasso Logistic      |      0.849 |     0.923 |    0.94  |         0.886 |         0.797 |       0.86  | 0.873 |
+| Linear SVM          |      0.849 |     0.923 |    0.94  |         0.887 |         0.795 |       0.859 | 0.873 |
+| Ridge Logistic      |      0.848 |     0.922 |    0.94  |         0.885 |         0.796 |       0.86  | 0.872 |
+| Logistic Regression |      0.848 |     0.922 |    0.94  |         0.885 |         0.796 |       0.86  | 0.872 |
+| Random Forest       |      0.841 |     0.919 |    0.938 |         0.853 |         0.824 |       0.873 | 0.862 |
+| KNN                 |      0.84  |     0.913 |    0.925 |         0.907 |         0.746 |       0.834 | 0.869 |
 
-| model          |   best_cv_roc_auc |   cv_std_roc_auc | best_params                                                                          |
-|:---------------|------------------:|-----------------:|:-------------------------------------------------------------------------------------|
-| lasso_logistic |             0.921 |            0.002 | {'model__C': 0.1}                                                                    |
-| logistic       |             0.921 |            0.003 | {'model__C': 0.1}                                                                    |
-| ridge_logistic |             0.921 |            0.003 | {'model__C': 0.1}                                                                    |
-| svm_linear     |             0.92  |            0.003 | {'model__C': 0.1}                                                                    |
-| xgboost        |             0.918 |            0.002 | {'model__learning_rate': 0.05, 'model__max_depth': 3, 'model__n_estimators': 100}    |
-| random_forest  |             0.915 |            0.002 | {'model__max_depth': None, 'model__min_samples_leaf': 5, 'model__n_estimators': 120} |
-| knn            |             0.909 |            0.002 | {'model__n_neighbors': 25}                                                           |
+![Held-out metric comparison](reports/figures/model_metric_comparison.png)
 
 ![ROC curve comparison](reports/figures/roc_curve_comparison.png)
 
 ![Precision-Recall curve comparison](reports/figures/precision_recall_curve_comparison.png)
 
-## Important Predictive Features
+### Training-Set Cross-Validation
 
-Feature importance should be interpreted as predictive signal, not causal effect.
+| Model               |   Best CV ROC-AUC |   CV Std. | Selected Parameters                                             |
+|:--------------------|------------------:|----------:|:----------------------------------------------------------------|
+| Lasso Logistic      |             0.921 |     0.002 | {'C': 0.1}                                                      |
+| Logistic Regression |             0.921 |     0.003 | {'C': 0.1}                                                      |
+| Ridge Logistic      |             0.921 |     0.003 | {'C': 0.1}                                                      |
+| Linear SVM          |             0.92  |     0.003 | {'C': 0.1}                                                      |
+| XGBoost             |             0.919 |     0.002 | {'learning_rate': 0.05, 'max_depth': 3, 'n_estimators': 150}    |
+| Random Forest       |             0.915 |     0.002 | {'max_depth': None, 'min_samples_leaf': 5, 'n_estimators': 150} |
+| KNN                 |             0.909 |     0.002 | {'n_neighbors': 25}                                             |
 
-### Lasso logistic coefficients
+## Cross-Model Feature Interpretation
 
-| feature                                              |   coefficient |
-|:-----------------------------------------------------|--------------:|
-| categorical__have_you_ever_had_suicidal_thoughts_Yes |        1.4077 |
-| numeric__academic_pressure                           |        1.1509 |
-| categorical__have_you_ever_had_suicidal_thoughts_No  |       -1.0441 |
-| numeric__financial_stress                            |        0.79   |
-| categorical__dietary_habits_Unhealthy                |        0.5807 |
-| numeric__age                                         |       -0.5353 |
-| categorical__dietary_habits_Healthy                  |       -0.5011 |
-| numeric__work_study_hours                            |        0.4262 |
-| categorical__sleep_duration_'Less than 5 hours'      |        0.3764 |
-| numeric__study_satisfaction                          |       -0.3273 |
+The goal of this section is not to claim psychological causality. Instead, the analysis asks whether similar predictive signals appear across linear and tree-based models.
 
-### Random Forest feature importance
+![Cross-model feature importance](reports/figures/cross_model_feature_importance.png)
 
-| feature                                              |   importance |
-|:-----------------------------------------------------|-------------:|
-| numeric__academic_pressure                           |       0.2106 |
-| categorical__have_you_ever_had_suicidal_thoughts_No  |       0.1884 |
-| categorical__have_you_ever_had_suicidal_thoughts_Yes |       0.1874 |
-| numeric__financial_stress                            |       0.1138 |
-| numeric__age                                         |       0.0595 |
-| numeric__work_study_hours                            |       0.049  |
-| numeric__cgpa                                        |       0.038  |
-| numeric__study_satisfaction                          |       0.0306 |
-| categorical__dietary_habits_Unhealthy                |       0.0246 |
-| categorical__dietary_habits_Healthy                  |       0.0163 |
+### Lasso Direction Summary
 
-### XGBoost feature importance
+Lasso is useful because it gives both variable magnitude and the direction of the selected signal. The ranking below uses the absolute coefficient size, while the direction column keeps the sign information.
 
-| feature                                             |   importance |
-|:----------------------------------------------------|-------------:|
-| categorical__have_you_ever_had_suicidal_thoughts_No |       0.5484 |
-| numeric__academic_pressure                          |       0.1251 |
-| numeric__financial_stress                           |       0.0697 |
-| categorical__dietary_habits_Healthy                 |       0.0417 |
-| numeric__work_study_hours                           |       0.0388 |
-| categorical__dietary_habits_Unhealthy               |       0.0375 |
-| numeric__age                                        |       0.0374 |
-| numeric__study_satisfaction                         |       0.0269 |
-| categorical__sleep_duration_'Less than 5 hours'     |       0.0186 |
-| categorical__family_history_of_mental_illness_No    |       0.018  |
+| Feature            | Risk-related Level   | Direction   |   Abs. Coefficient |
+|:-------------------|:---------------------|:------------|-------------------:|
+| Suicidal Thoughts  | No                   | Negative    |              1.228 |
+| Academic Pressure  | numeric increase     | Positive    |              1.151 |
+| Financial Stress   | numeric increase     | Positive    |              0.79  |
+| Dietary Habits     | Unhealthy            | Positive    |              0.581 |
+| Age                | numeric increase     | Negative    |              0.535 |
+| Work/Study Hours   | numeric increase     | Positive    |              0.426 |
+| Sleep Duration     | Less Than 5 Hours    | Positive    |              0.377 |
+| Study Satisfaction | numeric increase     | Negative    |              0.327 |
 
-### Permutation importance
+### Logistic Regression Interpretation
 
-| feature                             |   importance_mean |
-|:------------------------------------|------------------:|
-| have_you_ever_had_suicidal_thoughts |            0.1083 |
-| academic_pressure                   |            0.0844 |
-| financial_stress                    |            0.0323 |
-| age                                 |            0.0152 |
-| dietary_habits                      |            0.012  |
-| work_study_hours                    |            0.0093 |
-| study_satisfaction                  |            0.0052 |
-| sleep_duration                      |            0.0017 |
-| cgpa                                |            0.0008 |
-| family_history_of_mental_illness    |            0.0005 |
+Traditional logistic regression remains valuable here because its coefficients give a direct, readable risk-direction summary. In this dataset, variables such as academic pressure and financial stress tend to carry positive coefficients, while some lifestyle or demographic levels carry negative coefficients. These are predictive associations in a synthetic dataset, not causal explanations.
+
+Top positive logistic signals:
+
+| Feature           | Level            |   Coefficient |
+|:------------------|:-----------------|--------------:|
+| Suicidal Thoughts | Yes              |         1.264 |
+| Academic Pressure | numeric increase |         1.154 |
+| Financial Stress  | numeric increase |         0.792 |
+| Dietary Habits    | Unhealthy        |         0.562 |
+| Work/Study Hours  | numeric increase |         0.43  |
+
+Top negative logistic signals:
+
+| Feature            | Level            |   Coefficient |
+|:-------------------|:-----------------|--------------:|
+| Age                | numeric increase |        -0.556 |
+| Study Satisfaction | numeric increase |        -0.329 |
+| Job Satisfaction   | numeric increase |        -0.038 |
+
+### Cross-Model Consensus
+
+A feature is more convincing as a dataset-level predictive signal when it appears repeatedly across model families.
+
+| Feature                          | Lasso   | Random Forest   | XGBoost   |   Models in Top 10 |
+|:---------------------------------|:--------|:----------------|:----------|-------------------:|
+| Academic Pressure                | 2       | 2               | 2         |                  3 |
+| Age                              | 5       | 4               | 7         |                  3 |
+| Degree                           | 10      | 9               | 5         |                  3 |
+| Dietary Habits                   | 4       | 6               | 3         |                  3 |
+| Financial Stress                 | 3       | 3               | 4         |                  3 |
+| Sleep Duration                   | 7       | 10              | 6         |                  3 |
+| Study Satisfaction               | 8       | 8               | 9         |                  3 |
+| Suicidal Thoughts                | 1       | 1               | 1         |                  3 |
+| Work/Study Hours                 | 6       | 5               | 8         |                  3 |
+| Family History of Mental Illness | 9       |                 | 10        |                  2 |
+| CGPA                             |         | 7               |           |                  1 |

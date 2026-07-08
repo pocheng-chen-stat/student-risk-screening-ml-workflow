@@ -1,9 +1,4 @@
-"""Cleaning rules for the Student Depression Dataset case study.
-
-The goal is to define a clear analysis population before modeling. The cleaning
-rules remove very rare or ambiguous records that are inconsistent with the
-student-focused scope of the project.
-"""
+"""Cleaning rules for the Student Depression Dataset case study."""
 
 from __future__ import annotations
 
@@ -11,6 +6,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 import re
 
+import numpy as np
 import pandas as pd
 
 
@@ -30,14 +26,12 @@ class CleaningReport:
 
 
 def normalize_column_name(name: str) -> str:
-    """Convert raw column names into stable snake_case names."""
     name = name.strip().lower()
     name = re.sub(r"[^a-z0-9]+", "_", name)
     return name.strip("_")
 
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Normalize all column names."""
     return df.rename(columns={column: normalize_column_name(column) for column in df.columns})
 
 
@@ -68,7 +62,6 @@ def _count_invalid_financial_stress_rows(df: pd.DataFrame) -> int:
 
 
 def _convert_numeric_if_possible(series: pd.Series) -> pd.Series:
-    """Convert a column to numeric only when every non-missing value is numeric."""
     try:
         return pd.to_numeric(series, errors="raise")
     except (TypeError, ValueError):
@@ -76,19 +69,6 @@ def _convert_numeric_if_possible(series: pd.Series) -> pd.Series:
 
 
 def clean_dataset(df: pd.DataFrame) -> tuple[pd.DataFrame, CleaningReport]:
-    """Apply scope and anomaly cleaning rules.
-
-    Cleaning choices:
-    - keep only student records;
-    - remove CGPA equal to 0;
-    - remove ambiguous degree category "Others";
-    - remove invalid financial stress values such as "?";
-    - drop identifier and city columns.
-
-    Returns
-    -------
-    cleaned_df, cleaning_report
-    """
     cleaned = normalize_columns(df).copy()
     raw_rows = len(cleaned)
     dropped_columns: list[str] = []
@@ -134,7 +114,7 @@ def clean_dataset(df: pd.DataFrame) -> tuple[pd.DataFrame, CleaningReport]:
     cleaned[TARGET_COLUMN] = pd.to_numeric(cleaned[TARGET_COLUMN], errors="coerce")
     cleaned = cleaned.loc[cleaned[TARGET_COLUMN].isin([0, 1])].copy()
     cleaned[TARGET_COLUMN] = cleaned[TARGET_COLUMN].astype(int)
-    cleaned = cleaned.reset_index(drop=True)
+    cleaned = cleaned.replace({np.nan: None}).reset_index(drop=True)
 
     report = CleaningReport(
         raw_rows=raw_rows,
@@ -150,7 +130,6 @@ def clean_dataset(df: pd.DataFrame) -> tuple[pd.DataFrame, CleaningReport]:
 
 
 def save_cleaning_report(report: CleaningReport, output_path: str | Path) -> None:
-    """Save cleaning report as a one-row CSV."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame([asdict(report)]).to_csv(output_path, index=False)

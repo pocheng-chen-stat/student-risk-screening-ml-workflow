@@ -1,7 +1,7 @@
 """Model interpretation utilities.
 
 Interpretation is limited to predictive signals and correlates. This project
-does not make causal, medical, or clinical claims.
+is not a clinical, psychological, or causal study.
 """
 
 from __future__ import annotations
@@ -13,17 +13,23 @@ os.environ.setdefault("LOKY_MAX_CPU_COUNT", "1")
 import pandas as pd
 from sklearn.inspection import permutation_importance
 
+from src.feature_display import (
+    add_feature_labels,
+    aggregate_coefficients_by_feature,
+    aggregate_importance_by_feature,
+)
+
 
 def get_feature_names(fitted_pipeline) -> list[str]:
-    """Return transformed feature names from a fitted pipeline."""
     preprocessor = fitted_pipeline.named_steps["preprocess"]
     return preprocessor.get_feature_names_out().tolist()
 
 
-def lasso_coefficients(fitted_pipeline) -> pd.DataFrame:
-    """Extract Lasso logistic regression coefficients on transformed features."""
+def model_coefficients(fitted_pipeline) -> pd.DataFrame:
     names = get_feature_names(fitted_pipeline)
     model = fitted_pipeline.named_steps["model"]
+    if not hasattr(model, "coef_"):
+        return pd.DataFrame(columns=["feature", "coefficient", "abs_coefficient"])
     coefs = model.coef_.ravel()
     return (
         pd.DataFrame({"feature": names, "coefficient": coefs})
@@ -34,7 +40,6 @@ def lasso_coefficients(fitted_pipeline) -> pd.DataFrame:
 
 
 def tree_feature_importance(fitted_pipeline) -> pd.DataFrame:
-    """Extract feature importances from a fitted tree-based model."""
     names = get_feature_names(fitted_pipeline)
     model = fitted_pipeline.named_steps["model"]
     if not hasattr(model, "feature_importances_"):
@@ -52,34 +57,21 @@ def permutation_importance_table(
     y_test,
     *,
     random_state: int = 42,
-    n_repeats: int = 3,
-    max_rows: int = 1500,
+    n_repeats: int = 5,
 ) -> pd.DataFrame:
-    """Compute permutation importance on a reproducible subset of the test set.
-
-    Permutation importance can be slow on a full test set. A fixed subset keeps
-    the portfolio workflow fast while still providing an interpretable ranking.
-    """
-    if len(X_test) > max_rows:
-        X_eval = X_test.sample(n=max_rows, random_state=random_state)
-        y_eval = y_test.loc[X_eval.index]
-    else:
-        X_eval = X_test
-        y_eval = y_test
-
     result = permutation_importance(
         fitted_pipeline,
-        X_eval,
-        y_eval,
+        X_test,
+        y_test,
         n_repeats=n_repeats,
         random_state=random_state,
         scoring="roc_auc",
         n_jobs=1,
     )
-    return (
+    table = (
         pd.DataFrame(
             {
-                "feature": X_eval.columns,
+                "feature": X_test.columns,
                 "importance_mean": result.importances_mean,
                 "importance_std": result.importances_std,
             }
@@ -87,23 +79,49 @@ def permutation_importance_table(
         .sort_values("importance_mean", ascending=False)
         .reset_index(drop=True)
     )
+    return add_feature_labels(table)
 
 
 def create_interpretation_outputs(model_results: dict, X_test, y_test) -> dict[str, pd.DataFrame]:
-    """Create model interpretation tables."""
+    """Create raw and aggregated interpretation tables.
+
+    Raw sklearn features are kept for transparency, while aggregated tables are
+    used for readable README figures. Aggregation maps one-hot encoded levels
+    back to their original explanatory variables.
+    """
     outputs: dict[str, pd.DataFrame] = {}
+    original_features = list(X_test.columns)
+
+    if "logistic" in model_results:
+        logistic_raw = model_coefficients(model_results["logistic"]["model"])
+        outputs["logistic_coefficients"] = logistic_raw
+        outputs["logistic_risk_direction"] = aggregate_coefficients_by_feature(
+            logistic_raw,
+            known_features=original_features,
+        )
 
     if "lasso_logistic" in model_results:
-        outputs["lasso_coefficients"] = lasso_coefficients(model_results["lasso_logistic"]["model"])
+        lasso_raw = model_coefficients(model_results["lasso_logistic"]["model"])
+        outputs["lasso_coefficients"] = lasso_raw
+        outputs["lasso_feature_importance"] = aggregate_coefficients_by_feature(
+            lasso_raw,
+            known_features=original_features,
+        )
 
     for model_name in ["random_forest", "xgboost"]:
         if model_name in model_results:
             table = tree_feature_importance(model_results[model_name]["model"])
             if not table.empty:
                 outputs[f"{model_name}_importance"] = table
+                outputs[f"{model_name}_feature_importance"] = aggregate_importance_by_feature(
+                    table,
+                    known_features=original_features,
+                    value_col="importance",
+                )
 
     best_model_name = max(model_results, key=lambda name: model_results[name]["metrics"]["roc_auc"])
     outputs["permutation_importance"] = permutation_importance_table(
         model_results[best_model_name]["model"], X_test, y_test
     )
+
     return outputs

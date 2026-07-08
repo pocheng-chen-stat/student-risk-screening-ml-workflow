@@ -1,0 +1,15 @@
+feature,feature_label,level,level_label,coefficient,abs_coefficient,direction
+have_you_ever_had_suicidal_thoughts,Suicidal Thoughts,No,No,-1.228443025303006,1.228443025303006,Negative
+academic_pressure,Academic Pressure,,,1.1509528926715407,1.1509528926715407,Positive
+financial_stress,Financial Stress,,,0.7900380322105202,0.7900380322105202,Positive
+dietary_habits,Dietary Habits,Unhealthy,Unhealthy,0.5810595162596051,0.5810595162596051,Positive
+age,Age,,,-0.5352697580444026,0.5352697580444026,Negative
+work_study_hours,Work/Study Hours,,,0.426181520482642,0.426181520482642,Positive
+sleep_duration,Sleep Duration,'Less than 5 hours',Less Than 5 Hours,0.37651050075588205,0.37651050075588205,Positive
+study_satisfaction,Study Satisfaction,,,-0.32733827404768967,0.32733827404768967,Negative
+family_history_of_mental_illness,Family History of Mental Illness,Yes,Yes,0.22658005113498017,0.22658005113498017,Positive
+degree,Degree,BSc,Bsc,0.13028156389541284,0.13028156389541284,Positive
+cgpa,CGPA,,,0.07874919617280966,0.07874919617280966,Positive
+job_satisfaction,Job Satisfaction,,,-0.014693912596012122,0.014693912596012122,Negative
+gender,Gender,Female,Female,0.007188296986162382,0.007188296986162382,Positive
+work_pressure,Work Pressure,,,0.0,0.0,Positive
