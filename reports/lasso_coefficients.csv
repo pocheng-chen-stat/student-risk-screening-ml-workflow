@@ -1,49 +1,49 @@
 feature,coefficient,abs_coefficient
-categorical__have_you_ever_had_suicidal_thoughts_Yes,1.2485145924351337,1.2485145924351337
-categorical__have_you_ever_had_suicidal_thoughts_No,-1.2004765296853968,1.2004765296853968
-numeric__academic_pressure,1.1372937161699395,1.1372937161699395
-numeric__financial_stress,0.7813823973209487,0.7813823973209487
-categorical__dietary_habits_Unhealthy,0.5586913127055386,0.5586913127055386
-numeric__age,-0.5294245469522186,0.5294245469522186
-categorical__dietary_habits_Healthy,-0.4583939602502628,0.4583939602502628
-numeric__work_study_hours,0.4293458219800488,0.4293458219800488
-categorical__sleep_duration_'Less than 5 hours',0.3391508611717084,0.3391508611717084
-numeric__study_satisfaction,-0.32623875246304346,0.32623875246304346
-categorical__family_history_of_mental_illness_Yes,0.23137013684186356,0.23137013684186356
-categorical__sleep_duration_'More than 8 hours',-0.2244416629707809,0.2244416629707809
-numeric__cgpa,0.08289630834811391,0.08289630834811391
-categorical__degree_'Class 12',-0.027569319402370288,0.027569319402370288
-numeric__job_satisfaction,-0.001176342386451708,0.001176342386451708
-numeric__work_pressure,0.0,0.0
+categorical__have_you_ever_had_suicidal_thoughts_Yes,1.438769658071233,1.438769658071233
+numeric__academic_pressure,1.137302694089673,1.137302694089673
+categorical__have_you_ever_had_suicidal_thoughts_No,-1.0100070598594386,1.0100070598594386
+numeric__financial_stress,0.781414090205775,0.781414090205775
+categorical__dietary_habits_Unhealthy,0.5583221209566614,0.5583221209566614
+numeric__age,-0.5294230057202536,0.5294230057202536
+categorical__dietary_habits_Healthy,-0.4585441099221751,0.4585441099221751
+numeric__work_study_hours,0.42935313240943457,0.42935313240943457
+categorical__sleep_duration_'Less than 5 hours',0.33881719507988783,0.33881719507988783
+numeric__study_satisfaction,-0.32625108203709835,0.32625108203709835
+categorical__sleep_duration_'More than 8 hours',-0.2246950884446745,0.2246950884446745
+categorical__family_history_of_mental_illness_No,-0.18984652500184965,0.18984652500184965
+numeric__cgpa,0.08289204239666595,0.08289204239666595
+categorical__family_history_of_mental_illness_Yes,0.04132292555676483,0.04132292555676483
+categorical__degree_'Class 12',-0.027804582607975165,0.027804582607975165
+numeric__job_satisfaction,-0.0011772377391451943,0.0011772377391451943
 categorical__dietary_habits_Moderate,0.0,0.0
 categorical__gender_Male,0.0,0.0
 categorical__sleep_duration_'5-6 hours',0.0,0.0
 categorical__sleep_duration_'7-8 hours',0.0,0.0
 categorical__gender_Female,0.0,0.0
-categorical__degree_B.Ed,0.0,0.0
+numeric__work_pressure,0.0,0.0
 categorical__degree_B.Arch,0.0,0.0
 categorical__degree_B.Com,0.0,0.0
 categorical__degree_BBA,0.0,0.0
 categorical__degree_BCA,0.0,0.0
 categorical__degree_BE,0.0,0.0
 categorical__degree_BHM,0.0,0.0
-categorical__degree_BSc,0.0,0.0
+categorical__degree_B.Ed,0.0,0.0
 categorical__degree_B.Pharm,0.0,0.0
 categorical__degree_B.Tech,0.0,0.0
 categorical__degree_BA,0.0,0.0
 categorical__degree_M.Com,0.0,0.0
 categorical__degree_LLM,0.0,0.0
 categorical__degree_LLB,0.0,0.0
+categorical__degree_BSc,0.0,0.0
 categorical__degree_M.Ed,0.0,0.0
-categorical__degree_MBA,0.0,0.0
 categorical__degree_M.Pharm,0.0,0.0
 categorical__degree_M.Tech,0.0,0.0
 categorical__degree_MA,0.0,0.0
 categorical__degree_MD,0.0,0.0
 categorical__degree_MCA,0.0,0.0
 categorical__degree_MBBS,0.0,0.0
-categorical__degree_ME,0.0,0.0
+categorical__degree_MBA,0.0,0.0
 categorical__degree_PhD,0.0,0.0
 categorical__degree_MSc,0.0,0.0
 categorical__degree_MHM,0.0,0.0
-categorical__family_history_of_mental_illness_No,0.0,0.0
+categorical__degree_ME,0.0,0.0

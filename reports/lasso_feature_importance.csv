@@ -1,15 +1,15 @@
 feature,feature_label,level,level_label,coefficient,abs_coefficient,direction
-have_you_ever_had_suicidal_thoughts,Suicidal Thoughts,Yes,Yes,1.2485145924351337,1.2485145924351337,Positive
-academic_pressure,Academic Pressure,,,1.1372937161699395,1.1372937161699395,Positive
-financial_stress,Financial Stress,,,0.7813823973209487,0.7813823973209487,Positive
-dietary_habits,Dietary Habits,Unhealthy,Unhealthy,0.5586913127055386,0.5586913127055386,Positive
-age,Age,,,-0.5294245469522186,0.5294245469522186,Negative
-work_study_hours,Work/Study Hours,,,0.4293458219800488,0.4293458219800488,Positive
-sleep_duration,Sleep Duration,'Less than 5 hours',Less Than 5 Hours,0.3391508611717084,0.3391508611717084,Positive
-study_satisfaction,Study Satisfaction,,,-0.32623875246304346,0.32623875246304346,Negative
-family_history_of_mental_illness,Family History of Mental Illness,Yes,Yes,0.23137013684186356,0.23137013684186356,Positive
-cgpa,CGPA,,,0.08289630834811391,0.08289630834811391,Positive
-degree,Degree,'Class 12',Class 12,-0.027569319402370288,0.027569319402370288,Negative
-job_satisfaction,Job Satisfaction,,,-0.001176342386451708,0.001176342386451708,Negative
+have_you_ever_had_suicidal_thoughts,Suicidal Thoughts,Yes,Yes,1.438769658071233,1.438769658071233,Positive
+academic_pressure,Academic Pressure,,,1.137302694089673,1.137302694089673,Positive
+financial_stress,Financial Stress,,,0.781414090205775,0.781414090205775,Positive
+dietary_habits,Dietary Habits,Unhealthy,Unhealthy,0.5583221209566614,0.5583221209566614,Positive
+age,Age,,,-0.5294230057202536,0.5294230057202536,Negative
+work_study_hours,Work/Study Hours,,,0.42935313240943457,0.42935313240943457,Positive
+sleep_duration,Sleep Duration,'Less than 5 hours',Less Than 5 Hours,0.33881719507988783,0.33881719507988783,Positive
+study_satisfaction,Study Satisfaction,,,-0.32625108203709835,0.32625108203709835,Negative
+family_history_of_mental_illness,Family History of Mental Illness,No,No,-0.18984652500184965,0.18984652500184965,Negative
+cgpa,CGPA,,,0.08289204239666595,0.08289204239666595,Positive
+degree,Degree,'Class 12',Class 12,-0.027804582607975165,0.027804582607975165,Negative
+job_satisfaction,Job Satisfaction,,,-0.0011772377391451943,0.0011772377391451943,Negative
 gender,Gender,Male,Male,0.0,0.0,Positive
 work_pressure,Work Pressure,,,0.0,0.0,Positive

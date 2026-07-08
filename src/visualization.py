@@ -139,6 +139,94 @@ def plot_depression_rate_by_feature(df: pd.DataFrame, feature: str, output_path:
     plt.close(fig)
 
 
+
+def _ordered_rate_table(df: pd.DataFrame, feature: str, top_n: int = 20) -> pd.Series:
+    """Return depression-rate table with readable ordering for EDA panels."""
+    table = df.groupby(feature, dropna=False)["depression"].mean()
+
+    # Keep numeric / ordinal scores in natural ascending order. For categorical
+    # variables, sort by rate so the visual pattern is easy to read.
+    try:
+        numeric_index = pd.to_numeric(table.index)
+        table = table.iloc[numeric_index.argsort()]
+    except Exception:
+        table = table.sort_values(ascending=True)
+
+    if len(table) > top_n:
+        table = table.tail(top_n)
+    return table
+
+
+def plot_eda_overview(df: pd.DataFrame, output_path: str | Path) -> None:
+    """Create a README-ready EDA overview figure.
+
+    The README uses this one integrated figure instead of several disconnected
+    large plots. It answers the key pre-modeling questions in one place:
+    whether the target is usable, whether pressure scores show gradients, and
+    whether a severe warning-sign variable separates the risk label.
+    """
+    fig, axes = plt.subplots(2, 2, figsize=(13.5, 9.2))
+
+    # Panel A: target distribution.
+    ax = axes[0, 0]
+    counts = df["depression"].value_counts().sort_index()
+    labels = ["No label (0)", "Risk label (1)"]
+    values = [counts.get(0, 0), counts.get(1, 0)]
+    bars = ax.bar(labels, values)
+    total = sum(values)
+    for bar, value in zip(bars, values):
+        pct = value / total if total else 0
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height(),
+            f"{value:,}\n({pct:.1%})",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+        )
+    ax.set_title("A. Target Distribution")
+    ax.set_ylabel("Count")
+
+    # Panels B-D: selected EDA gradients / warning signs.
+    panel_specs = [
+        ("academic_pressure", "B. Risk Rate by Academic Pressure"),
+        ("financial_stress", "C. Risk Rate by Financial Stress"),
+        ("have_you_ever_had_suicidal_thoughts", "D. Risk Rate by Suicidal Thoughts"),
+    ]
+
+    for ax, (feature, title) in zip(axes.flat[1:], panel_specs):
+        if feature not in df.columns:
+            ax.axis("off")
+            ax.text(0.5, 0.5, f"Missing feature:\n{feature}", ha="center", va="center")
+            continue
+        table = _ordered_rate_table(df, feature)
+        labels = []
+        for label in table.index:
+            if isinstance(label, float) and label.is_integer():
+                labels.append(str(int(label)))
+            else:
+                labels.append(str(label).strip("'").strip('"'))
+        bars = ax.bar(labels, table.values)
+        ax.set_title(title)
+        ax.set_ylabel("Risk Label Rate")
+        ax.set_ylim(0, 1)
+        ax.tick_params(axis="x", rotation=25)
+        for bar, value in zip(bars, table.values):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                min(value + 0.025, 0.98),
+                f"{value:.0%}",
+                ha="center",
+                va="bottom",
+                fontsize=8,
+            )
+
+    fig.suptitle("Exploratory Data Analysis Overview", fontsize=15, y=1.01)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=220, bbox_inches="tight")
+    plt.close(fig)
+
+
 def plot_roc_curves(model_results: dict, output_path: str | Path) -> None:
     fig, ax = plt.subplots(figsize=(7, 6))
     for name, result in model_results.items():

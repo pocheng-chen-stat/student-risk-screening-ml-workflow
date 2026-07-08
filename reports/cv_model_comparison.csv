@@ -1,8 +1,8 @@
 model,best_cv_roc_auc,cv_std_roc_auc,best_params
-lasso_logistic,0.9214132609471107,0.0003405640905513516,{'model__C': 0.05}
+lasso_logistic,0.9214145980059874,0.00033953946966740466,{'model__C': 0.05}
 logistic,0.9211941635037114,0.00040970186996954866,{'model__C': 0.1}
 ridge_logistic,0.9211941635037114,0.00040970186996954866,{'model__C': 0.1}
 svm_linear,0.9211226021414749,0.00038802810071757816,{'model__C': 0.1}
-xgboost,0.9201192505667608,0.00012531672254264135,"{'model__learning_rate': 0.05, 'model__max_depth': 3, 'model__n_estimators': 150}"
+xgboost,0.9200641178842425,4.0749894637735095e-05,"{'model__learning_rate': 0.05, 'model__max_depth': 3, 'model__n_estimators': 150}"
 random_forest,0.9147043618339884,0.0010523931239643138,"{'model__max_depth': None, 'model__min_samples_leaf': 5, 'model__n_estimators': 150}"
 knn,0.9110205233780874,0.0009849185596527137,{'model__n_neighbors': 25}

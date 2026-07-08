@@ -87,15 +87,11 @@ EDA is not used here as decoration. It answers three basic questions before mode
 3. **Do severe warning-sign variables separate the risk label?**  
    Suicidal thoughts are inspected because they represent a serious self-reported warning sign in the dataset. This is a descriptive check only, not a clinical conclusion.
 
-![Target distribution](reports/figures/target_distribution.png)
+The overview figure below combines these checks into one visual summary instead of interrupting the README with several separate plots.
 
-![Risk label rate by academic pressure](reports/figures/depression_rate_by_academic_pressure.png)
+![EDA overview](reports/figures/eda_overview.png)
 
-![Risk label rate by financial stress](reports/figures/depression_rate_by_financial_stress.png)
-
-![Risk label rate by suicidal thoughts](reports/figures/depression_rate_by_have_you_ever_had_suicidal_thoughts.png)
-
-These charts provide the first layer of the story: the risk label is not randomly scattered. Higher academic pressure and higher financial stress show visibly higher risk-label rates, and students reporting suicidal thoughts have a much higher risk-label rate in this dataset. These patterns motivate model-based comparison and interpretation in the next sections.
+The figure provides the first layer of the story: the risk label is not randomly scattered. Higher academic pressure and higher financial stress show visibly higher risk-label rates, and students reporting suicidal thoughts have a much higher risk-label rate in this dataset. These descriptive patterns motivate model-based comparison and interpretation in the next sections. Individual EDA figures are still saved under `reports/figures/` for detailed inspection.
 
 ## Modeling Strategy
 

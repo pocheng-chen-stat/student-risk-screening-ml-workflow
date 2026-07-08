@@ -8,7 +8,7 @@ The performance gap among XGBoost, logistic regression, ridge logistic, lasso lo
 
 | Model               | Accuracy   | ROC-AUC   | PR-AUC   | Sensitivity   | Specificity   | Precision   | F1    |
 |:--------------------|:-----------|:----------|:---------|:--------------|:--------------|:------------|:------|
-| XGBoost             | 0.843      | 0.922     | 0.939    | 0.884         | 0.787         | 0.854       | 0.869 |
+| XGBoost             | 0.844      | 0.922     | 0.939    | 0.884         | 0.787         | 0.854       | 0.869 |
 | Lasso Logistic      | 0.848      | 0.921     | 0.938    | 0.887         | 0.793         | 0.858       | 0.872 |
 | Logistic Regression | 0.848      | 0.921     | 0.938    | 0.888         | 0.791         | 0.857       | 0.872 |
 | Ridge Logistic      | 0.848      | 0.921     | 0.938    | 0.888         | 0.791         | 0.857       | 0.872 |
@@ -87,7 +87,7 @@ To make the logistic regression interpretation readable, an auxiliary logistic m
 | Academic Pressure | one-unit increase                     | Higher odds | 0.844         | 2.33x                  | +133%                 |
 | Financial Stress  | one-unit increase                     | Higher odds | 0.558         | 1.75x                  | +75%                  |
 | Dietary Habits    | Moderate vs. reference level          | Higher odds | 0.493         | 1.64x                  | +64%                  |
-| Degree            | Llb vs. reference level               | Higher odds | 0.413         | 1.51x                  | +51%                  |
+| Degree            | Llb vs. reference level               | Higher odds | 0.414         | 1.51x                  | +51%                  |
 | Sleep Duration    | Less Than 5 Hours vs. reference level | Higher odds | 0.384         | 1.47x                  | +47%                  |
 | Degree            | Mbbs vs. reference level              | Higher odds | 0.363         | 1.44x                  | +44%                  |
 
@@ -97,10 +97,10 @@ Lasso is sorted by absolute coefficient size to show variable strength, while th
 
 | Feature            | Risk-related Level   | Direction   | Abs. Coefficient   |
 |:-------------------|:---------------------|:------------|:-------------------|
-| Suicidal Thoughts  | Yes                  | Positive    | 1.249              |
+| Suicidal Thoughts  | Yes                  | Positive    | 1.439              |
 | Academic Pressure  | numeric increase     | Positive    | 1.137              |
 | Financial Stress   | numeric increase     | Positive    | 0.781              |
-| Dietary Habits     | Unhealthy            | Positive    | 0.559              |
+| Dietary Habits     | Unhealthy            | Positive    | 0.558              |
 | Age                | numeric increase     | Negative    | 0.529              |
 | Work/Study Hours   | numeric increase     | Positive    | 0.429              |
 | Sleep Duration     | Less Than 5 Hours    | Positive    | 0.339              |

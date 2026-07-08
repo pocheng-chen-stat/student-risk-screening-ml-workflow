@@ -19,6 +19,7 @@ from src.visualization import (
     plot_confusion_matrix,
     plot_cross_model_feature_importance,
     plot_depression_rate_by_feature,
+    plot_eda_overview,
     plot_feature_bar,
     plot_missing_values,
     plot_model_metric_comparison,
@@ -51,6 +52,7 @@ def main() -> None:
     plot_target_distribution(cleaned_df, FIGURES_DIR / "target_distribution.png")
     plot_missing_values(cleaned_df, FIGURES_DIR / "missing_values.png")
     plot_numeric_correlation(cleaned_df, FIGURES_DIR / "numeric_correlation.png")
+    plot_eda_overview(cleaned_df, FIGURES_DIR / "eda_overview.png")
 
     for feature in [
         "academic_pressure",
