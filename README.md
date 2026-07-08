@@ -140,19 +140,55 @@ However, the main finding is not simply “XGBoost wins.” The performance gap 
 
 ![Precision-Recall curve comparison](reports/figures/precision_recall_curve_comparison.png)
 
+### How the Evaluation Metrics Are Read
+
+The models are compared with multiple metrics because a single score cannot fully describe a risk-screening classifier.
+
+| Metric | Meaning in this project |
+|---|---|
+| Accuracy | Overall proportion of correct predictions. Useful as a general summary, but not enough by itself. |
+| ROC-AUC | Ability to rank risk-label cases above non-risk-label cases across thresholds. This is the main threshold-independent comparison metric. |
+| PR-AUC | Precision-recall performance, useful when the positive class is especially important. |
+| Sensitivity / Recall | Among students with the risk label, the proportion correctly detected. In a screening-style setting, this is important because missed high-risk cases are concerning. |
+| Specificity | Among students without the risk label, the proportion correctly identified as non-risk. |
+| Precision | Among students predicted as risk-label cases, the proportion that truly have the risk label. |
+| F1 Score | Harmonic mean of precision and recall. Useful when balancing false positives and false negatives. |
+
+The model choice is therefore not based only on one number. ROC-AUC and PR-AUC summarize ranking ability, sensitivity reflects screening coverage, and F1 balances precision and recall.
+
+
+### Overall Model Assessment
+
+The held-out results show that **XGBoost has the highest ROC-AUC**, while **KNN has the highest sensitivity**. However, the performance differences among XGBoost, Lasso Logistic, Logistic Regression, Ridge Logistic, and Linear SVM are small.
+
+This leads to three practical conclusions:
+
+1. **XGBoost is a strong predictive model** because it gives the best held-out ROC-AUC.
+2. **KNN is useful as a high-sensitivity reference**, but its lower specificity means it flags more non-risk cases as risk cases.
+3. **Logistic and Lasso Logistic remain important**, even if they are not always the single best model, because their performance is competitive and their coefficients can be translated into odds-ratio interpretations.
+
+For this reason, the analysis does not simply choose one winning model and stop. It uses model comparison to evaluate predictive performance, then uses interpretable models and feature-importance methods to understand which variables are repeatedly selected as warning signs.
+
+
+
 ### Training-Set Cross-Validation
 
 Cross-validation is performed only on the training set. The held-out test set is used once at the end to estimate final performance.
 
-| Model               |   Best CV ROC-AUC |   CV Std. | Selected Parameters                                             |
-|:--------------------|------------------:|----------:|:----------------------------------------------------------------|
-| Lasso Logistic      |             0.921 |     0.000 | {'C': 0.05}                                                     |
-| Logistic Regression |             0.921 |     0.000 | {'C': 0.1}                                                      |
-| Ridge Logistic      |             0.921 |     0.000 | {'C': 0.1}                                                      |
-| Linear SVM          |             0.921 |     0.000 | {'C': 0.1}                                                      |
-| XGBoost             |             0.920 |     0.000 | {'learning_rate': 0.05, 'max_depth': 3, 'n_estimators': 150}    |
-| Random Forest       |             0.915 |     0.001 | {'max_depth': None, 'min_samples_leaf': 5, 'n_estimators': 150} |
-| KNN                 |             0.911 |     0.001 | {'n_neighbors': 25}                                             |
+This table is used to check whether model performance is stable during training. Detailed selected hyperparameters are saved in `reports/cv_model_comparison.csv` rather than shown here, so the README can stay readable.
+
+| Model | Best CV ROC-AUC | CV Std. |
+|---|---:|---:|
+| Lasso Logistic | 0.921 | 0.000 |
+| Logistic Regression | 0.921 | 0.000 |
+| Ridge Logistic | 0.921 | 0.000 |
+| Linear SVM | 0.921 | 0.000 |
+| XGBoost | 0.920 | 0.000 |
+| Random Forest | 0.915 | 0.001 |
+| KNN | 0.911 | 0.001 |
+
+The top-performing linear models and XGBoost show very similar cross-validation ROC-AUC values, suggesting that the dataset has strong and stable predictive signals. Random Forest and KNN are still competitive, but their validation ROC-AUC values are slightly lower.
+
 
 ## From Prediction to Explanation
 
